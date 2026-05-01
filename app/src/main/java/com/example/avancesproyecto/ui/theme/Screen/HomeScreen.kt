@@ -23,7 +23,7 @@ fun HomeScreen(navController: NavHostController, viewModel: EventViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("🌳 Green Events UAM") },
+                title = { Text("Green Events UAM") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = VerdeOscuro,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary

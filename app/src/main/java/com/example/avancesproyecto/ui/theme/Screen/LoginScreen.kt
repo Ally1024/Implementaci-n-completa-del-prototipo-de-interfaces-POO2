@@ -15,6 +15,8 @@ import androidx.compose.ui.unit.sp
 import com.example.avancesproyecto.ui.theme.GrisClaro
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun LoginScreen(
@@ -61,9 +63,10 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "🌳 Bienvenido",
+                text = "Bienvenido",
                 fontSize = 28.sp,
-                color = VerdeOscuro
+                color = VerdeOscuro,
+                fontWeight = FontWeight.Bold
             )
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -79,22 +82,13 @@ fun LoginScreen(
                     modifier = Modifier.padding(20.dp)
                 ) {
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "🌳",
-                            fontSize = 28.sp
-                        )
-
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Text(
-                            text = "Inicio de sesión",
-                            fontSize = 22.sp,
-                            color = VerdeOscuro
-                        )
-                    }
+                    Text(
+                        text = "Inicio de sesión",
+                        fontSize = 22.sp,
+                        color = VerdeOscuro,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
