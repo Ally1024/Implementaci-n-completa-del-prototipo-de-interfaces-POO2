@@ -1,14 +1,16 @@
 package com.example.avancesproyecto.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
-import com.example.avancesproyecto.ui.theme.Screen.LoginScreen
-import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
+import com.example.avancesproyecto.ui.theme.Screen.AddEventScreen
 import com.example.avancesproyecto.ui.theme.Screen.DetailScreen
+import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
+import com.example.avancesproyecto.ui.theme.Screen.InscripcionScreen
+import com.example.avancesproyecto.ui.theme.Screen.LoginScreen
 import com.example.avancesproyecto.ui.theme.Screen.RegisteredScreen
 import com.example.avancesproyecto.viewmodel.EventViewModel
 
@@ -16,38 +18,83 @@ import com.example.avancesproyecto.viewmodel.EventViewModel
 fun AppNavigation() {
 
     val navController = rememberNavController()
+
     val viewModel: EventViewModel = viewModel()
 
     NavHost(
         navController = navController,
+
         startDestination = Routes.LOGIN
     ) {
 
-        // 🔐 LOGIN
+        // LOGIN
         composable(Routes.LOGIN) {
+
             LoginScreen(
+
                 onLoginClick = {
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
+
+                    navController.navigate(
+                        Routes.HOME
+                    ) {
+
+                        popUpTo(Routes.LOGIN) {
+                            inclusive = true
+                        }
                     }
                 }
             )
         }
 
-        // 🏠 HOME
+        // HOME
         composable(Routes.HOME) {
-            HomeScreen(navController, viewModel)
+
+            HomeScreen(
+                navController,
+                viewModel
+            )
         }
 
-        // 📄 DETAIL
-        composable("${Routes.DETAIL}/{eventId}") { backStack: NavBackStackEntry ->
-            val id = backStack.arguments?.getString("eventId")?.toInt() ?: 0
-            DetailScreen(id, viewModel, navController)
+        // DETAIL
+        composable(
+            "${Routes.DETAIL}/{eventId}"
+        ) { backStack: NavBackStackEntry ->
+
+            val id =
+                backStack.arguments
+                    ?.getString("eventId")
+                    ?.toInt() ?: 0
+
+            DetailScreen(
+                id,
+                viewModel,
+                navController
+            )
         }
 
-        // 📌 REGISTERED
+        // REGISTERED
         composable(Routes.REGISTERED) {
-            RegisteredScreen(viewModel, navController)
+
+            RegisteredScreen(
+                viewModel,
+                navController
+            )
+        }
+
+        // INSCRIPCION
+        composable(Routes.INSCRIPCION) {
+
+            InscripcionScreen(
+                navController
+            )
+        }
+
+        // ADD EVENT
+        composable(Routes.ADD_EVENT) {
+
+            AddEventScreen(
+                navController
+            )
         }
     }
 }
