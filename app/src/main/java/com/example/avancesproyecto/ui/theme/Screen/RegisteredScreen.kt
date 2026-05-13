@@ -6,230 +6,93 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
+import com.example.avancesproyecto.ui.theme.White
 import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.SessionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisteredScreen(
-    viewModel: EventViewModel,
-    navController: NavHostController
-) {
+fun RegisteredScreen(viewModel: EventViewModel, navController: NavHostController) {
+    val registrations by viewModel.registrations
+    val userId        = SessionManager.currentUser?.id ?: -1
 
-    val registeredEvents by
-    viewModel.registeredEvents
-
-    val myEvents =
-        viewModel.events.value.filter {
-
-            registeredEvents.contains(it.id)
-        }
+    // Eventos en los que el alumno actual está inscrito
+    val myEvents = viewModel.events.filter { event ->
+        registrations[event.id]?.contains(userId) == true
+    }
 
     Scaffold(
-
         topBar = {
-
             TopAppBar(
-
-                title = {
-
-                    Text(
-                        text = "Mis Eventos Inscritos"
-                    )
-                },
-
-                colors =
-                    TopAppBarDefaults.topAppBarColors(
-
-                        containerColor =
-                            VerdeOscuro,
-
-                        titleContentColor =
-                            MaterialTheme.colorScheme.onPrimary
-                    ),
-
+                title = { Text("Mis Eventos Inscritos") },
                 navigationIcon = {
-
-                    IconButton(
-
-                        onClick = {
-                            navController.navigateUp()
-                        }
-                    ) {
-
-                        Icon(
-
-                            Icons.AutoMirrored.Filled.ArrowBack,
-
-                            contentDescription = "Volver"
-                        )
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Atrás", tint = White)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor    = VerdeOscuro,
+                    titleContentColor = White
+                )
             )
         }
     ) { padding ->
-
         if (myEvents.isEmpty()) {
-
             Box(
-
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-
-                contentAlignment =
-                    Alignment.Center
+                modifier         = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
             ) {
-
                 Text(
-
-                    text =
-                        "No tienes eventos inscritos aún. ¡Inscríbete en la pantalla principal!",
-
-                    style =
-                        MaterialTheme.typography.bodyLarge,
-
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    text  = "No tienes eventos inscritos aún.\n¡Inscríbete en la pantalla principal!",
+                    color = MaterialTheme.colorScheme.outline
                 )
             }
-
         } else {
-
             LazyColumn(
-
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(16.dp),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(8.dp)
+                modifier            = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-
                 items(myEvents) { event ->
-
                     Card(
-
-                        modifier = Modifier.fillMaxWidth(),
-
-                        elevation =
-                            CardDefaults.cardElevation(4.dp)
+                        modifier  = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
-
-                        Column(
-
-                            modifier =
-                                Modifier.padding(16.dp)
-                        ) {
-
-                            Text(
-
-                                text = event.title,
-
-                                style =
-                                    MaterialTheme.typography.headlineSmall,
-
-                                color = VerdeOscuro
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(8.dp)
-                            )
-
-                            Text(
-
-                                text = event.description,
-
-                                style =
-                                    MaterialTheme.typography.bodyMedium
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(8.dp)
-                            )
-
-                            Row(
-
-                                modifier =
-                                    Modifier.fillMaxWidth(),
-
-                                horizontalArrangement =
-                                    Arrangement.SpaceBetween
-                            ) {
-
-                                Text(
-
-                                    text =
-                                        "📅 ${event.date}",
-
-                                    style =
-                                        MaterialTheme.typography.bodySmall
-                                )
-
-                                Text(
-
-                                    text =
-                                        "📍 ${event.location}",
-
-                                    style =
-                                        MaterialTheme.typography.bodySmall
-                                )
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(event.title,
+                                style      = MaterialTheme.typography.titleMedium,
+                                color      = VerdeOscuro,
+                                fontWeight = FontWeight.Bold)
+                            Spacer(Modifier.height(4.dp))
+                            Text(event.description,
+                                style    = MaterialTheme.typography.bodySmall,
+                                maxLines = 2)
+                            Spacer(Modifier.height(8.dp))
+                            Row(Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("📅 ${event.date}  🕐 ${event.time}",
+                                    style = MaterialTheme.typography.bodySmall)
+                                Text("📍 ${event.location.take(20)}…",
+                                    style = MaterialTheme.typography.bodySmall)
                             }
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(10.dp)
-                            )
-
-                            Text(
-
-                                text =
-                                    "👥 Cupo máximo: 50 estudiantes",
-
-                                color = VerdeOscuro
-                            )
-
-                            Spacer(
-                                modifier =
-                                    Modifier.height(12.dp)
-                            )
-
+                            Spacer(Modifier.height(10.dp))
                             Button(
-
                                 onClick = {
-
-                                    viewModel.unregisterFromEvent(
-                                        event.id
-                                    )
+                                    if (userId >= 0)
+                                        viewModel.unregisterFromEvent(event.id, userId)
                                 },
-
-                                modifier =
-                                    Modifier.align(
-                                        Alignment.End
-                                    ),
-
-                                colors =
-                                    ButtonDefaults.buttonColors(
-
-                                        containerColor =
-                                            MaterialTheme.colorScheme.error
-                                    )
-                            ) {
-
-                                Text(
-                                    text =
-                                        "Cancelar Inscripción"
+                                modifier = Modifier.align(Alignment.End),
+                                colors   = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
                                 )
-                            }
+                            ) { Text("Cancelar Inscripción") }
                         }
                     }
                 }
