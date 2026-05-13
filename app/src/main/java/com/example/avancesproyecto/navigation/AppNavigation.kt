@@ -6,95 +6,94 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.avancesproyecto.ui.theme.Screen.AddEventScreen
-import com.example.avancesproyecto.ui.theme.Screen.DetailScreen
-import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
-import com.example.avancesproyecto.ui.theme.Screen.InscripcionScreen
-import com.example.avancesproyecto.ui.theme.Screen.LoginScreen
-import com.example.avancesproyecto.ui.theme.Screen.RegisteredScreen
+import com.example.avancesproyecto.ui.theme.Screen.*
+import com.example.avancesproyecto.viewmodel.AuthViewModel
 import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.SessionManager
 
 @Composable
 fun AppNavigation() {
+    val navController  = rememberNavController()
+    val eventViewModel : EventViewModel = viewModel()
+    val authViewModel  : AuthViewModel  = viewModel()
 
-    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
 
-    val viewModel: EventViewModel = viewModel()
-
-    NavHost(
-        navController = navController,
-
-        startDestination = Routes.LOGIN
-    ) {
-
-        // LOGIN
+        // ── LOGIN ─────────────────────────────────────────
         composable(Routes.LOGIN) {
-
             LoginScreen(
-
-                onLoginClick = {
-
-                    navController.navigate(
-                        Routes.HOME
-                    ) {
-
-                        popUpTo(Routes.LOGIN) {
-                            inclusive = true
-                        }
+                authViewModel = authViewModel,
+                onAdminLogin  = {
+                    navController.navigate(Routes.ADMIN_HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onUserLogin = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }
             )
         }
 
-        // HOME
+        // ── ADMIN ─────────────────────────────────────────
+        composable(Routes.ADMIN_HOME) {
+            AdminHomeScreen(
+                navController  = navController,
+                onLogout       = {
+                    SessionManager.logout()
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.ADMIN_HOME) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Routes.ADMIN_CREAR_EVENTO) {
+            AdminCrearEventoScreen(navController, eventViewModel)
+        }
+
+        composable(Routes.ADMIN_USUARIOS) {
+            AdminUsuariosScreen(navController, authViewModel)
+        }
+
+        composable(Routes.ADMIN_ASISTENCIA) {
+            AdminAsistenciaScreen(navController, eventViewModel, authViewModel)
+        }
+
+        composable(Routes.ADMIN_DASHBOARD) {
+            AdminDashboardScreen(navController, eventViewModel, authViewModel)
+        }
+
+        // ── ALUMNO ────────────────────────────────────────
         composable(Routes.HOME) {
-
-            HomeScreen(
-                navController,
-                viewModel
+            AlumnoHomeScreen(
+                navController  = navController,
+                eventViewModel = eventViewModel,
+                onLogout       = {
+                    SessionManager.logout()
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                }
             )
         }
 
-        // DETAIL
-        composable(
-            "${Routes.DETAIL}/{eventId}"
-        ) { backStack: NavBackStackEntry ->
-
-            val id =
-                backStack.arguments
-                    ?.getString("eventId")
-                    ?.toInt() ?: 0
-
-            DetailScreen(
-                id,
-                viewModel,
-                navController
-            )
+        composable("${Routes.DETAIL}/{eventId}") { back: NavBackStackEntry ->
+            val id = back.arguments?.getString("eventId")?.toInt() ?: 0
+            DetailScreen(id, eventViewModel, navController)
         }
 
-        // REGISTERED
         composable(Routes.REGISTERED) {
-
-            RegisteredScreen(
-                viewModel,
-                navController
-            )
+            RegisteredScreen(eventViewModel, navController)
         }
 
-        // INSCRIPCION
         composable(Routes.INSCRIPCION) {
-
-            InscripcionScreen(
-                navController
-            )
+            InscripcionScreen(navController)
         }
 
-        // ADD EVENT
-        composable(Routes.ADD_EVENT) {
-
-            AddEventScreen(
-                navController
-            )
+        composable(Routes.PERFIL) {
+            AlumnoPerfilScreen(navController, authViewModel, eventViewModel)
         }
     }
 }
