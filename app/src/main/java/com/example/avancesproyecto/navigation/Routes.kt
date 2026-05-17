@@ -16,4 +16,6 @@ object Routes {
     const val ADMIN = "admin"
 
     const val EDIT_EVENT = "edit_event"
+
+    const val USERS_MANAGEMENT = "users_management"
 }

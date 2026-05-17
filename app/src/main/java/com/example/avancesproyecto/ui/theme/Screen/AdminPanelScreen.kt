@@ -146,6 +146,32 @@ fun AdminPanelScreen(
                 Text("Eliminar Eventos")
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // =========================
+            // BOTON GESTION DE USUARIOS
+            // =========================
+
+            Button(
+
+                onClick = {
+                    navController.navigate(
+                        Routes.USERS_MANAGEMENT
+                    )
+                },
+
+                modifier = Modifier.fillMaxWidth(),
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.tertiary
+                )
+
+            ) {
+
+                Text("Gestión de Usuarios")
+            }
+
             Spacer(modifier = Modifier.height(20.dp))
 
             // =========================

@@ -59,7 +59,7 @@ fun AppNavigation() {
         composable("register") {
 
             RegisterScreen(
-
+                viewModel = viewModel,
                 onRegisterClick = {
                     navController.popBackStack()
                 },
@@ -163,6 +163,17 @@ fun AppNavigation() {
                 navController = navController,
 
                 viewModel = viewModel
+            )
+        }
+
+        // USERS MANAGEMENT
+        composable(Routes.USERS_MANAGEMENT) {
+
+            UsersManagementScreen(
+                viewModel = viewModel,
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
     }
