@@ -15,13 +15,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.avancesproyecto.navigation.Routes
 import com.example.avancesproyecto.ui.theme.GrisClaro
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
+import com.example.avancesproyecto.viewmodel.EventViewModel
 
 @Composable
 fun AddEventScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: EventViewModel
 ) {
 
     var nombre by remember {
@@ -37,6 +40,10 @@ fun AddEventScreen(
     }
 
     var locacion by remember {
+        mutableStateOf("")
+    }
+
+    var errorMensaje by remember {
         mutableStateOf("")
     }
 
@@ -97,6 +104,7 @@ fun AddEventScreen(
 
                         onValueChange = {
                             nombre = it
+                            errorMensaje = ""
                         },
 
                         label = {
@@ -127,6 +135,7 @@ fun AddEventScreen(
 
                         onValueChange = {
                             descripcion = it
+                            errorMensaje = ""
                         },
 
                         label = {
@@ -159,10 +168,15 @@ fun AddEventScreen(
 
                         onValueChange = {
                             fecha = it
+                            errorMensaje = ""
                         },
 
                         label = {
                             Text("Fecha")
+                        },
+
+                        placeholder = {
+                            Text("2026-05-30")
                         },
 
                         textStyle = TextStyle(
@@ -189,6 +203,7 @@ fun AddEventScreen(
 
                         onValueChange = {
                             locacion = it
+                            errorMensaje = ""
                         },
 
                         label = {
@@ -210,6 +225,21 @@ fun AddEventScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    if (errorMensaje.isNotEmpty()) {
+
+                        Spacer(
+                            modifier = Modifier.height(12.dp)
+                        )
+
+                        Text(
+                            text = errorMensaje,
+
+                            color = MaterialTheme.colorScheme.error,
+
+                            fontSize = 13.sp
+                        )
+                    }
+
                     Spacer(
                         modifier = Modifier.height(28.dp)
                     )
@@ -217,7 +247,49 @@ fun AddEventScreen(
                     Button(
                         onClick = {
 
-                            navController.popBackStack()
+                            when {
+
+                                nombre.isBlank() -> {
+                                    errorMensaje =
+                                        "Ingrese el nombre del evento"
+                                }
+
+                                descripcion.isBlank() -> {
+                                    errorMensaje =
+                                        "Ingrese una descripción"
+                                }
+
+                                fecha.isBlank() -> {
+                                    errorMensaje =
+                                        "Ingrese una fecha"
+                                }
+
+                                locacion.isBlank() -> {
+                                    errorMensaje =
+                                        "Ingrese una locación"
+                                }
+
+                                else -> {
+
+                                    viewModel.addEvent(
+                                        nombre,
+                                        descripcion,
+                                        fecha,
+                                        locacion
+                                    )
+
+                                    navController.navigate(
+                                        Routes.ADMIN
+                                    ) {
+
+                                        popUpTo(
+                                            Routes.ADD_EVENT
+                                        ) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                            }
                         },
 
                         modifier = Modifier

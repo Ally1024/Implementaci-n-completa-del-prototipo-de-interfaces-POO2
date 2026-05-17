@@ -66,7 +66,7 @@ class EventViewModel : ViewModel() {
 
         val newEvent = Event(
 
-            id = _events.value.size + 1,
+            id = (_events.value.maxOfOrNull { it.id } ?: 0) + 1,
 
             title = title,
 
@@ -79,5 +79,25 @@ class EventViewModel : ViewModel() {
 
         _events.value =
             _events.value + newEvent
+    }
+
+    fun deleteEvent(eventId: Int) {
+
+        _events.value =
+            _events.value.filter {
+
+                it.id != eventId
+            }
+
+        _registeredEvents.value =
+            _registeredEvents.value - eventId
+    }
+
+    fun getEventById(eventId: Int): Event? {
+
+        return _events.value.find {
+
+            it.id == eventId
+        }
     }
 }

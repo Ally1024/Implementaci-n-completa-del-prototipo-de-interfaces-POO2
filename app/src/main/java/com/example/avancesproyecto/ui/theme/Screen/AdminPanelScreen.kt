@@ -154,7 +154,32 @@ fun AdminPanelScreen(
 
                             Text(
                                 text = "📅 ${event.date}"
+
+
                             )
+                            Spacer(
+                                modifier = Modifier.height(12.dp)
+                            )
+
+                            Button(
+
+                                onClick = {
+
+                                    viewModel.deleteEvent(
+                                        event.id
+                                    )
+                                },
+
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor =
+                                        MaterialTheme.colorScheme.error
+                                )
+                            ) {
+
+                                Text(
+                                    text = "Eliminar Evento"
+                                )
+                            }
                         }
                     }
                 }
