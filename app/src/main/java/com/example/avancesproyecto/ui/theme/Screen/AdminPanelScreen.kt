@@ -5,12 +5,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.avancesproyecto.navigation.Routes
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
 import com.example.avancesproyecto.viewmodel.EventViewModel
@@ -25,28 +25,22 @@ fun AdminPanelScreen(
     Scaffold(
 
         topBar = {
-
             TopAppBar(
 
                 title = {
-
-                    Text(
-                        text = "Panel Administrador"
-                    )
+                    Text("Panel Administrador")
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(
-
                     containerColor = VerdeOscuro,
-
                     titleContentColor = White
                 )
             )
         }
+
     ) { padding ->
 
         Column(
-
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
@@ -54,131 +48,112 @@ fun AdminPanelScreen(
         ) {
 
             Text(
-
                 text = "Gestión de Eventos",
-
                 fontSize = 24.sp,
-
                 fontWeight = FontWeight.Bold,
-
                 color = VerdeOscuro
             )
 
-            Spacer(
-                modifier = Modifier.height(20.dp)
-            )
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // AGREGAR EVENTO
             Button(
 
-                onClick = { },
+                onClick = {
+                    navController.navigate(Routes.ADD_EVENT)
+                },
 
                 modifier = Modifier.fillMaxWidth(),
 
                 colors = ButtonDefaults.buttonColors(
                     containerColor = VerdeOscuro
                 )
-            ) {
 
+            ) {
                 Text("Agregar Evento")
             }
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
+            Spacer(modifier = Modifier.height(12.dp))
 
+            // ELIMINAR EVENTO
             Button(
 
-                onClick = { },
+                onClick = {
+                    navController.navigate(Routes.DELETE_EVENT)
+                },
 
                 modifier = Modifier.fillMaxWidth(),
 
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
                 )
-            ) {
 
+            ) {
                 Text("Eliminar Eventos")
             }
 
-            Spacer(
-                modifier = Modifier.height(20.dp)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Sugerencias de estudiantes",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = VerdeOscuro
             )
 
-            LazyColumn(
+            Spacer(modifier = Modifier.height(12.dp))
 
-                verticalArrangement =
-                    Arrangement.spacedBy(10.dp)
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
-                items(viewModel.events.value) { event ->
+                items(viewModel.suggestions) { suggestion ->
 
                     Card(
-
                         modifier = Modifier.fillMaxWidth(),
-
-                        elevation =
-                            CardDefaults.cardElevation(4.dp)
+                        elevation = CardDefaults.cardElevation(4.dp)
                     ) {
 
                         Column(
-
                             modifier = Modifier.padding(16.dp)
                         ) {
 
                             Text(
-
-                                text = event.title,
-
-                                fontWeight = FontWeight.Bold,
-
-                                fontSize = 18.sp,
-
-                                color = VerdeOscuro
+                                text = suggestion.title,
+                                fontWeight = FontWeight.Bold
                             )
 
-                            Spacer(
-                                modifier = Modifier.height(6.dp)
-                            )
+                            Spacer(modifier = Modifier.height(6.dp))
 
-                            Text(
-                                text = event.description
-                            )
+                            Text(suggestion.description)
 
-                            Spacer(
-                                modifier = Modifier.height(10.dp)
-                            )
+                            Spacer(modifier = Modifier.height(10.dp))
 
-                            Text(
-                                text = " ${event.location}"
-                            )
+                            Row {
 
-                            Text(
-                                text = "📅 ${event.date}"
+                                Button(
+                                    onClick = {
+                                        viewModel.approveSuggestion(suggestion)
+                                    }
+                                ) {
+                                    Text("Aprobar")
+                                }
 
+                                Spacer(modifier = Modifier.width(8.dp))
 
-                            )
-                            Spacer(
-                                modifier = Modifier.height(12.dp)
-                            )
+                                Button(
 
-                            Button(
+                                    onClick = {
+                                        viewModel.rejectSuggestion(suggestion)
+                                    },
 
-                                onClick = {
-
-                                    viewModel.deleteEvent(
-                                        event.id
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error
                                     )
-                                },
 
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor =
-                                        MaterialTheme.colorScheme.error
-                                )
-                            ) {
-
-                                Text(
-                                    text = "Eliminar Evento"
-                                )
+                                ) {
+                                    Text("Rechazar")
+                                }
                             }
                         }
                     }

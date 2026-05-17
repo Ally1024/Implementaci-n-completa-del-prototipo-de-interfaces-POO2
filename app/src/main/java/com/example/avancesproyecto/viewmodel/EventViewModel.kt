@@ -3,15 +3,18 @@ package com.example.avancesproyecto.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.avancesproyecto.model.Event
+import com.example.avancesproyecto.model.Suggestion
 
 class EventViewModel : ViewModel() {
 
-    //  Lista de eventos en memoria
+    // =======================
+    //  EVENTOS
+    // =======================
+
     private val _events = mutableStateListOf<Event>()
-    val events: List<Event> = _events
+    val events: List<Event> get() = _events
 
 
-    //  CREAR EVENTO (ADMIN)
     fun addEvent(
         nombre: String,
         descripcion: String,
@@ -20,7 +23,7 @@ class EventViewModel : ViewModel() {
         capacidad: Int
     ) {
         val newEvent = Event(
-            id = (_events.size + 1),
+            id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
             title = nombre,
             description = descripcion,
             date = fecha,
@@ -33,41 +36,76 @@ class EventViewModel : ViewModel() {
     }
 
 
-    // INSCRIBIR USUARIO (CONTROL DE CUPO)
     fun joinEvent(eventId: Int) {
-
         val index = _events.indexOfFirst { it.id == eventId }
-
         if (index == -1) return
 
         val event = _events[index]
 
-        //  si está lleno, no hace nada
         if (event.attendees >= event.maxCapacity) return
 
-        // ✔ actualizar asistentes
-        val updatedEvent = event.copy(
+        _events[index] = event.copy(
             attendees = event.attendees + 1
         )
-
-        _events[index] = updatedEvent
     }
 
 
-    // VERIFICAR SI ESTÁ LLENO
-    fun isEventFull(event: Event): Boolean {
-        return event.attendees >= event.maxCapacity
-    }
-
-
-    //  CUPOS DISPONIBLES
-    fun remainingSpots(event: Event): Int {
-        return event.maxCapacity - event.attendees
-    }
-
-
-    //  ELIMINAR EVENTO (ADMIN)
     fun deleteEvent(eventId: Int) {
         _events.removeAll { it.id == eventId }
+    }
+
+
+    fun isEventFull(event: Event) =
+        event.attendees >= event.maxCapacity
+
+
+    fun remainingSpots(event: Event) =
+        event.maxCapacity - event.attendees
+
+
+    // =======================
+    // 💡 SUGERENCIAS
+    // =======================
+
+    private val _suggestions = mutableStateListOf<Suggestion>()
+    val suggestions: List<Suggestion> get() = _suggestions
+
+
+    fun addSuggestion(
+        title: String,
+        description: String,
+        date: String,
+        location: String,
+        capacity: Int
+    ) {
+        val suggestion = Suggestion(
+            id = (_suggestions.size + 1),
+            title = title,
+            description = description,
+            date = date,
+            location = location,
+            maxCapacity = capacity
+        )
+
+        _suggestions.add(suggestion)
+    }
+
+
+    fun approveSuggestion(suggestion: Suggestion) {
+
+        addEvent(
+            nombre = suggestion.title,
+            descripcion = suggestion.description,
+            fecha = suggestion.date,
+            locacion = suggestion.location,
+            capacidad = suggestion.maxCapacity
+        )
+
+        _suggestions.remove(suggestion)
+    }
+
+
+    fun rejectSuggestion(suggestion: Suggestion) {
+        _suggestions.remove(suggestion)
     }
 }

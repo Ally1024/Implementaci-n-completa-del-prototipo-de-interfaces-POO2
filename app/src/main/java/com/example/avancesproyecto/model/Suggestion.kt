@@ -1,15 +1,11 @@
 package com.example.avancesproyecto.model
-data class Event(
+
+data class Suggestion(
     val id: Int,
     val title: String,
     val description: String,
     val date: String,
     val location: String,
     val maxCapacity: Int,
-    val attendees: Int = 0,
-    val isOpen: Boolean = true,
-    val isFeatured: Boolean = false
-
-
-
-    )
+    val message: String = ""
+)

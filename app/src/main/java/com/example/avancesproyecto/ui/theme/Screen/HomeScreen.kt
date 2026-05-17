@@ -4,21 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +14,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.avancesproyecto.navigation.Routes
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
-import com.example.avancesproyecto.ui.theme.White
 import com.example.avancesproyecto.viewmodel.EventViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,307 +23,112 @@ fun HomeScreen(
     viewModel: EventViewModel
 ) {
 
-    val registeredEvents by viewModel.registeredEvents
-
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
-
-    var selectedEventTitle by remember {
-        mutableStateOf("")
-    }
-
-    var selectedEventId by remember {
-        mutableStateOf(0)
-    }
-
     Scaffold(
 
         floatingActionButton = {
-
             FloatingActionButton(
-
                 onClick = {
-
-                    navController.navigate(
-                        Routes.ADD_EVENT
-                    )
+                    navController.navigate(Routes.SUGGEST_EVENT)
                 },
-
-                containerColor = VerdeOscuro,
-
-                contentColor = White
+                containerColor = VerdeOscuro
             ) {
-
-                Text(
-                    text = "+",
-
-                    fontSize = 30.sp,
-
-                    fontWeight = FontWeight.Bold
-                )
+                Text("+", fontSize = 30.sp, fontWeight = FontWeight.Bold)
             }
         },
 
         topBar = {
-
             TopAppBar(
-
-                title = {
-
-                    Text(
-                        text = "Green Events UAM"
-                    )
-                },
-
+                title = { Text("Green Events UAM") },
                 colors = TopAppBarDefaults.topAppBarColors(
-
                     containerColor = VerdeOscuro,
-
-                    titleContentColor =
-                        MaterialTheme.colorScheme.onPrimary
-                ),
-
-                actions = {
-
-                    Button(
-
-                        onClick = {
-
-                            navController.navigate(
-                                Routes.REGISTERED
-                            )
-                        },
-
-                        colors = ButtonDefaults.buttonColors(
-
-                            containerColor =
-                                MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-
-                        Text(
-                            text = "Mis Eventos"
-                        )
-                    }
-                }
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
         }
+
     ) { padding ->
 
         LazyColumn(
-
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp),
-
-            verticalArrangement =
-                Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            items(viewModel.events.value) { event ->
+            items(viewModel.events) { event ->
 
-                val isRegistered =
-                    registeredEvents.contains(event.id)
+                val isFull = event.attendees >= event.maxCapacity
 
                 Card(
-
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-
-                            navController.navigate(
-                                "${Routes.DETAIL}/${event.id}"
-                            )
+                            navController.navigate("${Routes.DETAIL}/${event.id}")
                         },
-
-                    elevation =
-                        CardDefaults.cardElevation(4.dp)
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
 
-                    Column(
-
-                        modifier = Modifier.padding(16.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
 
                         Text(
-
                             text = event.title,
-
-                            style =
-                                MaterialTheme.typography.headlineSmall,
-
+                            style = MaterialTheme.typography.headlineSmall,
                             color = VerdeOscuro
                         )
 
-                        Spacer(
-                            modifier = Modifier.height(8.dp)
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        Text(
+                        Text(text = event.description)
 
-                            text = event.description,
-
-                            style =
-                                MaterialTheme.typography.bodyMedium
-                        )
-
-                        Spacer(
-                            modifier = Modifier.height(8.dp)
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Row(
-
                             modifier = Modifier.fillMaxWidth(),
-
-                            horizontalArrangement =
-                                Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-
-                            Text(
-
-                                text = "📅 ${event.date}",
-
-                                style =
-                                    MaterialTheme.typography.bodySmall
-                            )
-
-                            Text(
-
-                                text = "📍 ${event.location}",
-
-                                style =
-                                    MaterialTheme.typography.bodySmall
-                            )
+                            Text("📅 ${event.date}")
+                            Text("📍 ${event.location}")
                         }
 
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "👥 ${event.attendees}/${event.maxCapacity}",
+                            fontWeight = FontWeight.Bold,
+                            color = VerdeOscuro
                         )
 
                         Text(
-
-                            text = "👥 Máximo 50 estudiantes",
-
-                            color = VerdeOscuro,
-
-                            fontWeight = FontWeight.Bold,
-
-                            fontSize = 13.sp
+                            text = if (isFull)
+                                "🔴 Evento lleno"
+                            else
+                                "🟢 Cupos disponibles",
+                            fontSize = 12.sp
                         )
 
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
-                        )
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         Button(
-
                             onClick = {
-
-                                if (isRegistered) {
-
-                                    viewModel.unregisterFromEvent(
-                                        event.id
-                                    )
-
-                                } else {
-
-                                    selectedEventTitle = event.title
-                                    selectedEventId = event.id
-                                    showDialog = true
+                                if (!isFull) {
+                                    viewModel.joinEvent(event.id)
                                 }
                             },
-
-                            modifier =
-                                Modifier.align(Alignment.End),
-
+                            enabled = !isFull,
+                            modifier = Modifier.align(Alignment.End),
                             colors = ButtonDefaults.buttonColors(
-
-                                containerColor =
-
-                                    if (isRegistered)
-                                        MaterialTheme.colorScheme.error
-                                    else
-                                        VerdeOscuro
+                                containerColor = if (isFull)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    VerdeOscuro
                             )
                         ) {
-
-                            Text(
-
-                                if (isRegistered)
-                                    "Cancelar Inscripción"
-                                else
-                                    "Inscribirse"
-                            )
+                            Text(if (isFull) "Completo" else "Inscribirse")
                         }
                     }
                 }
             }
         }
-    }
-
-    if (showDialog) {
-
-        AlertDialog(
-
-            onDismissRequest = {
-                showDialog = false
-            },
-
-            title = {
-
-                Text(
-                    text = "Confirmar inscripción"
-                )
-            },
-
-            text = {
-
-                Text(
-                    text =
-                        "¿Deseas inscribirte al evento \"$selectedEventTitle\"?"
-                )
-            },
-
-            confirmButton = {
-
-                Button(
-
-                    onClick = {
-
-                        viewModel.registerForEvent(
-                            selectedEventId
-                        )
-
-                        showDialog = false
-
-                        navController.navigate(
-                            Routes.INSCRIPCION
-                        )
-                    },
-
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = VerdeOscuro
-                    )
-                ) {
-
-                    Text("Confirmar")
-                }
-            },
-
-            dismissButton = {
-
-                OutlinedButton(
-
-                    onClick = {
-                        showDialog = false
-                    }
-                ) {
-
-                    Text("Cancelar")
-                }
-            }
-        )
     }
 }

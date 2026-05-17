@@ -1,13 +1,15 @@
 package com.example.avancesproyecto.ui.theme.Screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
@@ -21,55 +23,22 @@ fun DetailScreen(
     navController: NavHostController
 ) {
 
-    val event =
-        viewModel.events.value.find {
-            it.id == id
-        }
-
-    val registeredEvents by
-    viewModel.registeredEvents
-
-    val isRegistered =
-        registeredEvents.contains(id)
+    val event = viewModel.events.find { it.id == id }
 
     if (event == null) {
 
         Scaffold(
-
             topBar = {
-
                 TopAppBar(
-
-                    title = {
-
-                        Text(
-                            text = "Evento no encontrado"
-                        )
-                    },
-
-                    colors =
-                        TopAppBarDefaults.topAppBarColors(
-
-                            containerColor =
-                                VerdeOscuro,
-
-                            titleContentColor =
-                                MaterialTheme.colorScheme.onPrimary
-                        ),
-
+                    title = { Text("Evento no encontrado") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = VerdeOscuro,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     navigationIcon = {
-
-                        IconButton(
-
-                            onClick = {
-                                navController.navigateUp()
-                            }
-                        ) {
-
+                        IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
-
                                 Icons.AutoMirrored.Filled.ArrowBack,
-
                                 contentDescription = "Volver"
                             )
                         }
@@ -79,59 +48,32 @@ fun DetailScreen(
         ) { padding ->
 
             Box(
-
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding),
-
-                contentAlignment =
-                    Alignment.Center
+                contentAlignment = Alignment.Center
             ) {
-
-                Text(
-                    text = "Evento no encontrado"
-                )
+                Text("Evento no encontrado")
             }
         }
 
     } else {
 
+        val context = LocalContext.current
+        val isFull = event.attendees >= event.maxCapacity
+
         Scaffold(
-
             topBar = {
-
                 TopAppBar(
-
-                    title = {
-
-                        Text(
-                            text = event.title
-                        )
-                    },
-
-                    colors =
-                        TopAppBarDefaults.topAppBarColors(
-
-                            containerColor =
-                                VerdeOscuro,
-
-                            titleContentColor =
-                                MaterialTheme.colorScheme.onPrimary
-                        ),
-
+                    title = { Text(event.title) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = VerdeOscuro,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     navigationIcon = {
-
-                        IconButton(
-
-                            onClick = {
-                                navController.navigateUp()
-                            }
-                        ) {
-
+                        IconButton(onClick = { navController.navigateUp() }) {
                             Icon(
-
                                 Icons.AutoMirrored.Filled.ArrowBack,
-
                                 contentDescription = "Volver"
                             )
                         }
@@ -141,113 +83,80 @@ fun DetailScreen(
         ) { padding ->
 
             Column(
-
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
                     .padding(16.dp),
-
-                verticalArrangement =
-                    Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
                 Text(
-
                     text = event.title,
-
-                    style =
-                        MaterialTheme.typography.headlineMedium,
-
+                    style = MaterialTheme.typography.headlineMedium,
                     color = VerdeOscuro
                 )
 
-                Text(
-
-                    text = event.description,
-
-                    style =
-                        MaterialTheme.typography.bodyLarge
-                )
+                Text(text = event.description)
 
                 Row(
-
                     modifier = Modifier.fillMaxWidth(),
-
-                    horizontalArrangement =
-                        Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-
-                    Text(
-
-                        text = "📅 ${event.date}",
-
-                        style =
-                            MaterialTheme.typography.bodyMedium
-                    )
-
-                    Text(
-
-                        text = "📍 ${event.location}",
-
-                        style =
-                            MaterialTheme.typography.bodyMedium
-                    )
+                    Text("📅 ${event.date}")
+                    Text("📍 ${event.location}")
                 }
 
-                Spacer(
-                    modifier = Modifier.height(16.dp)
-                )
-
                 Text(
-
-                    text = "👥 Cupo máximo: 50 estudiantes",
-
+                    text = "👥 ${event.attendees}/${event.maxCapacity}",
                     color = VerdeOscuro
                 )
 
-                Spacer(
-                    modifier = Modifier.height(10.dp)
+                Text(
+                    text = if (isFull) "🔴 Evento lleno"
+                    else "🟢 Cupos disponibles",
+                    color = if (isFull)
+                        MaterialTheme.colorScheme.error
+                    else
+                        VerdeOscuro
                 )
 
+                // 🌍 BOTÓN GOOGLE MAPS
                 Button(
-
                     onClick = {
+                        val uri = Uri.parse(
+                            "https://www.google.com/maps/search/?api=1&query=${event.location}"
+                        )
 
-                        if (isRegistered) {
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        context.startActivity(intent)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VerdeOscuro
+                    )
+                ) {
+                    Text("Abrir en Google Maps")
+                }
 
-                            viewModel.unregisterFromEvent(
-                                event.id
-                            )
-
-                        } else {
-
-                            viewModel.registerForEvent(
-                                event.id
-                            )
+                // 🟢 BOTÓN INSCRIBIRSE
+                Button(
+                    onClick = {
+                        if (!isFull) {
+                            viewModel.joinEvent(event.id)
                         }
                     },
-
-                    modifier =
-                        Modifier.align(Alignment.End),
-
-                    colors =
-                        ButtonDefaults.buttonColors(
-
-                            containerColor =
-
-                                if (isRegistered)
-                                    MaterialTheme.colorScheme.error
-                                else
-                                    VerdeOscuro
-                        )
-                ) {
-
-                    Text(
-
-                        if (isRegistered)
-                            "Cancelar Inscripción"
+                    enabled = !isFull,
+                    modifier = Modifier.align(Alignment.End),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isFull)
+                            MaterialTheme.colorScheme.error
                         else
-                            "Inscribirse"
+                            VerdeOscuro
+                    )
+                ) {
+                    Text(
+                        if (isFull) "Completo"
+                        else "Inscribirse"
                     )
                 }
             }

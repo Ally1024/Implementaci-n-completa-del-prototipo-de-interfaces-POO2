@@ -8,7 +8,10 @@ object Routes {
 
     const val INSCRIPCION = "inscripcion"
 
-    const val ADD_EVENT = "add_event"
+    const val SUGGEST_EVENT = "suggest_event"
 
+    const val ADD_EVENT ="add_event"
+
+    const val DELETE_EVENT ="delete_event"
     const val ADMIN = "admin"
 }

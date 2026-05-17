@@ -84,6 +84,8 @@ fun EventCard(
                     text = if (isFull) "Evento completo" else "Unirse al evento"
                 )
             }
+
+
         }
     }
 }

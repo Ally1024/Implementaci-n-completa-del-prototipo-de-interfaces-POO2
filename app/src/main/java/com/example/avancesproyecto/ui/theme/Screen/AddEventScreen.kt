@@ -181,11 +181,11 @@ fun AddEventScreen(
                                         descripcion,
                                         fecha,
                                         locacion,
-                                        cap // 🔥 NUEVO
+                                        cap //  NUEVO
                                     )
 
                                     navController.navigate(Routes.ADMIN) {
-                                        popUpTo(Routes.ADD_EVENT) {
+                                        popUpTo(Routes.SUGGEST_EVENT) {
                                             inclusive = true
                                         }
                                     }
@@ -202,7 +202,7 @@ fun AddEventScreen(
                         )
                     ) {
                         Text(
-                            text = "Guardar Evento",
+                            text = "Sugirir Evento",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )

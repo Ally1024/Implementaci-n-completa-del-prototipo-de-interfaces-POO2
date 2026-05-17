@@ -6,14 +6,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.avancesproyecto.ui.theme.Screen.AddEventScreen
-import com.example.avancesproyecto.ui.theme.Screen.AdminPanelScreen
-import com.example.avancesproyecto.ui.theme.Screen.DetailScreen
-import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
-import com.example.avancesproyecto.ui.theme.Screen.InscripcionScreen
-import com.example.avancesproyecto.ui.theme.Screen.LoginScreen
-import com.example.avancesproyecto.ui.theme.Screen.RegisterScreen
-import com.example.avancesproyecto.ui.theme.Screen.RegisteredScreen
+import com.example.avancesproyecto.ui.theme.Screen.*
 import com.example.avancesproyecto.viewmodel.EventViewModel
 
 @Composable
@@ -37,9 +30,7 @@ fun AppNavigation() {
 
                     if (isAdmin) {
 
-                        navController.navigate(
-                            Routes.ADMIN
-                        ) {
+                        navController.navigate(Routes.ADMIN) {
 
                             popUpTo(Routes.LOGIN) {
                                 inclusive = true
@@ -48,9 +39,7 @@ fun AppNavigation() {
 
                     } else {
 
-                        navController.navigate(
-                            Routes.HOME
-                        ) {
+                        navController.navigate(Routes.HOME) {
 
                             popUpTo(Routes.LOGIN) {
                                 inclusive = true
@@ -61,9 +50,7 @@ fun AppNavigation() {
 
                 onRegisterClick = {
 
-                    navController.navigate(
-                        "register"
-                    )
+                    navController.navigate("register")
                 }
             )
         }
@@ -74,12 +61,10 @@ fun AppNavigation() {
             RegisterScreen(
 
                 onRegisterClick = {
-
                     navController.popBackStack()
                 },
 
                 onBackToLogin = {
-
                     navController.popBackStack()
                 }
             )
@@ -89,17 +74,44 @@ fun AppNavigation() {
         composable(Routes.HOME) {
 
             HomeScreen(
-                navController,
-                viewModel
+                navController = navController,
+                viewModel = viewModel
             )
         }
 
-        // ADMIN
+        // ADMIN PANEL
         composable(Routes.ADMIN) {
 
             AdminPanelScreen(
-                navController,
-                viewModel
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        // ADD EVENT (ADMIN)
+        composable(Routes.ADD_EVENT) {
+
+            AddEventScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        // DELETE EVENT
+        composable(Routes.DELETE_EVENT) {
+
+            DeleteEventScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
+        // SUGGEST EVENT (ESTUDIANTE)
+        composable(Routes.SUGGEST_EVENT) {
+
+            SuggestEventScreen(
+                navController = navController,
+                viewModel = viewModel
             )
         }
 
@@ -108,24 +120,23 @@ fun AppNavigation() {
             "${Routes.DETAIL}/{eventId}"
         ) { backStack: NavBackStackEntry ->
 
-            val id =
-                backStack.arguments
-                    ?.getString("eventId")
-                    ?.toInt() ?: 0
+            val id = backStack.arguments
+                ?.getString("eventId")
+                ?.toInt() ?: 0
 
             DetailScreen(
-                id,
-                viewModel,
-                navController
+                id = id,
+                viewModel = viewModel,
+                navController = navController
             )
         }
 
-        // REGISTERED
+        // REGISTERED EVENTS
         composable(Routes.REGISTERED) {
 
             RegisteredScreen(
-                viewModel,
-                navController
+                viewModel = viewModel,
+                navController = navController
             )
         }
 
@@ -133,15 +144,7 @@ fun AppNavigation() {
         composable(Routes.INSCRIPCION) {
 
             InscripcionScreen(
-                navController
-            )
-        }
-
-        // ADD EVENT
-        composable(Routes.ADD_EVENT) {
-
-            AddEventScreen(
-                navController
+                navController = navController
             )
         }
     }
