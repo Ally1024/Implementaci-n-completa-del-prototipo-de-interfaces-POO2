@@ -27,35 +27,22 @@ fun AddEventScreen(
     viewModel: EventViewModel
 ) {
 
-    var nombre by remember {
-        mutableStateOf("")
-    }
+    var nombre by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var fecha by remember { mutableStateOf("") }
+    var locacion by remember { mutableStateOf("") }
 
-    var descripcion by remember {
-        mutableStateOf("")
-    }
+    // 🔥 NUEVO: capacidad máxima
+    var capacidad by remember { mutableStateOf("") }
 
-    var fecha by remember {
-        mutableStateOf("")
-    }
-
-    var locacion by remember {
-        mutableStateOf("")
-    }
-
-    var errorMensaje by remember {
-        mutableStateOf("")
-    }
+    var errorMensaje by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        VerdeOscuro,
-                        White
-                    )
+                    colors = listOf(VerdeOscuro, White)
                 )
             )
     ) {
@@ -65,209 +52,127 @@ fun AddEventScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(24.dp),
-
             horizontalAlignment = Alignment.CenterHorizontally,
-
             verticalArrangement = Arrangement.Center
         ) {
 
             Text(
                 text = "Agregar Evento",
-
                 fontSize = 30.sp,
-
                 color = White,
-
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(
-                modifier = Modifier.height(28.dp)
-            )
+            Spacer(modifier = Modifier.height(28.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-
                 shape = RoundedCornerShape(24.dp),
-
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                )
+                colors = CardDefaults.cardColors(containerColor = White)
             ) {
 
-                Column(
-                    modifier = Modifier.padding(22.dp)
-                ) {
+                Column(modifier = Modifier.padding(22.dp)) {
 
+                    // NOMBRE
                     OutlinedTextField(
                         value = nombre,
-
                         onValueChange = {
                             nombre = it
                             errorMensaje = ""
                         },
-
-                        label = {
-                            Text("Nombre del evento")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            cursorColor = VerdeOscuro
-                        ),
-
+                        label = { Text("Nombre del evento") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    // DESCRIPCIÓN
                     OutlinedTextField(
                         value = descripcion,
-
                         onValueChange = {
                             descripcion = it
                             errorMensaje = ""
                         },
-
-                        label = {
-                            Text("Descripción")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            cursorColor = VerdeOscuro
-                        ),
-
+                        label = { Text("Descripción") },
                         modifier = Modifier.fillMaxWidth(),
-
-                        minLines = 4
+                        minLines = 3
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    // FECHA
                     OutlinedTextField(
                         value = fecha,
-
                         onValueChange = {
                             fecha = it
                             errorMensaje = ""
                         },
-
-                        label = {
-                            Text("Fecha")
-                        },
-
-                        placeholder = {
-                            Text("2026-05-30")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            cursorColor = VerdeOscuro
-                        ),
-
+                        label = { Text("Fecha") },
+                        placeholder = { Text("2026-05-30") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    // LOCACIÓN
                     OutlinedTextField(
                         value = locacion,
-
                         onValueChange = {
                             locacion = it
                             errorMensaje = ""
                         },
-
-                        label = {
-                            Text("Locación")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            cursorColor = VerdeOscuro
-                        ),
-
+                        label = { Text("Locación") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 🔥 CAPACIDAD MÁXIMA (NUEVO)
+                    OutlinedTextField(
+                        value = capacidad,
+                        onValueChange = {
+                            capacidad = it
+                            errorMensaje = ""
+                        },
+                        label = { Text("Capacidad máxima") },
+                        placeholder = { Text("Ej: 50") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // ERROR
                     if (errorMensaje.isNotEmpty()) {
-
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
-                        )
-
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = errorMensaje,
-
                             color = MaterialTheme.colorScheme.error,
-
                             fontSize = 13.sp
                         )
                     }
 
-                    Spacer(
-                        modifier = Modifier.height(28.dp)
-                    )
+                    Spacer(modifier = Modifier.height(28.dp))
 
+                    // BOTÓN GUARDAR
                     Button(
                         onClick = {
 
+                            val cap = capacidad.toIntOrNull()
+
                             when {
 
-                                nombre.isBlank() -> {
-                                    errorMensaje =
-                                        "Ingrese el nombre del evento"
-                                }
+                                nombre.isBlank() ->
+                                    errorMensaje = "Ingrese el nombre del evento"
 
-                                descripcion.isBlank() -> {
-                                    errorMensaje =
-                                        "Ingrese una descripción"
-                                }
+                                descripcion.isBlank() ->
+                                    errorMensaje = "Ingrese una descripción"
 
-                                fecha.isBlank() -> {
-                                    errorMensaje =
-                                        "Ingrese una fecha"
-                                }
+                                fecha.isBlank() ->
+                                    errorMensaje = "Ingrese una fecha"
 
-                                locacion.isBlank() -> {
-                                    errorMensaje =
-                                        "Ingrese una locación"
-                                }
+                                locacion.isBlank() ->
+                                    errorMensaje = "Ingrese una locación"
+
+                                cap == null || cap <= 0 ->
+                                    errorMensaje = "Ingrese una capacidad válida"
 
                                 else -> {
 
@@ -275,40 +180,30 @@ fun AddEventScreen(
                                         nombre,
                                         descripcion,
                                         fecha,
-                                        locacion
+                                        locacion,
+                                        cap // 🔥 NUEVO
                                     )
 
-                                    navController.navigate(
-                                        Routes.ADMIN
-                                    ) {
-
-                                        popUpTo(
-                                            Routes.ADD_EVENT
-                                        ) {
+                                    navController.navigate(Routes.ADMIN) {
+                                        popUpTo(Routes.ADD_EVENT) {
                                             inclusive = true
                                         }
                                     }
                                 }
                             }
                         },
-
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(55.dp),
-
                         shape = RoundedCornerShape(50.dp),
-
                         colors = ButtonDefaults.buttonColors(
                             containerColor = VerdeOscuro,
                             contentColor = White
                         )
                     ) {
-
                         Text(
                             text = "Guardar Evento",
-
                             fontSize = 16.sp,
-
                             fontWeight = FontWeight.Bold
                         )
                     }

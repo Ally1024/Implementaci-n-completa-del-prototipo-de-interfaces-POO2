@@ -1,103 +1,73 @@
 package com.example.avancesproyecto.viewmodel
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.avancesproyecto.model.Event
 
 class EventViewModel : ViewModel() {
 
-    private val _events = mutableStateOf(
+    //  Lista de eventos en memoria
+    private val _events = mutableStateListOf<Event>()
+    val events: List<Event> = _events
 
-        listOf(
 
-            Event(
-                1,
-                "Jornada de Limpieza del Campus",
-                "Únete a la limpieza de áreas verdes y espacios comunes del campus para mantener un entorno saludable.",
-                "2026-05-15",
-                "Campus Principal"
-            ),
-
-            Event(
-                2,
-                "Reforestación en el Jardín Universitario",
-                "Participa en la plantación de árboles nativos en el jardín central de la universidad.",
-                "2026-05-20",
-                "Chilamate"
-            ),
-
-            Event(
-                3,
-                "Taller de Reciclaje y Sostenibilidad",
-                "Aprende prácticas de reciclaje y cómo contribuir a la sostenibilidad en el campus.",
-                "2026-05-25",
-                "Auditorio Central"
-            )
-        )
-    )
-
-    val events: State<List<Event>> = _events
-
-    private val _registeredEvents =
-        mutableStateOf(setOf<Int>())
-
-    val registeredEvents:
-            State<Set<Int>> = _registeredEvents
-
-    fun registerForEvent(eventId: Int) {
-
-        _registeredEvents.value =
-            _registeredEvents.value + eventId
-    }
-
-    fun unregisterFromEvent(eventId: Int) {
-
-        _registeredEvents.value =
-            _registeredEvents.value - eventId
-    }
-
+    //  CREAR EVENTO (ADMIN)
     fun addEvent(
-        title: String,
-        description: String,
-        date: String,
-        location: String
+        nombre: String,
+        descripcion: String,
+        fecha: String,
+        locacion: String,
+        capacidad: Int
     ) {
-
         val newEvent = Event(
-
-            id = (_events.value.maxOfOrNull { it.id } ?: 0) + 1,
-
-            title = title,
-
-            description = description,
-
-            date = date,
-
-            location = location
+            id = (_events.size + 1),
+            title = nombre,
+            description = descripcion,
+            date = fecha,
+            location = locacion,
+            maxCapacity = capacidad,
+            attendees = 0
         )
 
-        _events.value =
-            _events.value + newEvent
+        _events.add(newEvent)
     }
 
+
+    // INSCRIBIR USUARIO (CONTROL DE CUPO)
+    fun joinEvent(eventId: Int) {
+
+        val index = _events.indexOfFirst { it.id == eventId }
+
+        if (index == -1) return
+
+        val event = _events[index]
+
+        //  si está lleno, no hace nada
+        if (event.attendees >= event.maxCapacity) return
+
+        // ✔ actualizar asistentes
+        val updatedEvent = event.copy(
+            attendees = event.attendees + 1
+        )
+
+        _events[index] = updatedEvent
+    }
+
+
+    // VERIFICAR SI ESTÁ LLENO
+    fun isEventFull(event: Event): Boolean {
+        return event.attendees >= event.maxCapacity
+    }
+
+
+    //  CUPOS DISPONIBLES
+    fun remainingSpots(event: Event): Int {
+        return event.maxCapacity - event.attendees
+    }
+
+
+    //  ELIMINAR EVENTO (ADMIN)
     fun deleteEvent(eventId: Int) {
-
-        _events.value =
-            _events.value.filter {
-
-                it.id != eventId
-            }
-
-        _registeredEvents.value =
-            _registeredEvents.value - eventId
-    }
-
-    fun getEventById(eventId: Int): Event? {
-
-        return _events.value.find {
-
-            it.id == eventId
-        }
+        _events.removeAll { it.id == eventId }
     }
 }
