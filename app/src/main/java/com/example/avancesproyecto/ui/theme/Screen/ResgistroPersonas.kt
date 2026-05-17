@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -36,10 +37,14 @@ import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
 
 @Composable
-fun LoginScreen(
-    onLoginClick: (Boolean) -> Unit = {},
-    onRegisterClick: () -> Unit = {}
+fun RegisterScreen(
+    onRegisterClick: () -> Unit = {},
+    onBackToLogin: () -> Unit = {}
 ) {
+
+    var nombre by rememberSaveable {
+        mutableStateOf("")
+    }
 
     var cif by rememberSaveable {
         mutableStateOf("")
@@ -49,8 +54,20 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
+    var confirmPassword by rememberSaveable {
+        mutableStateOf("")
+    }
+
     var passwordVisible by remember {
         mutableStateOf(false)
+    }
+
+    var confirmPasswordVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var nombreError by remember {
+        mutableStateOf("")
     }
 
     var cifError by remember {
@@ -61,8 +78,8 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
-    var isAdmin by remember {
-        mutableStateOf(false)
+    var confirmPasswordError by remember {
+        mutableStateOf("")
     }
 
     Box(
@@ -91,7 +108,7 @@ fun LoginScreen(
 
             Box(
                 modifier = Modifier
-                    .size(160.dp)
+                    .size(140.dp)
                     .background(
                         color = White,
                         shape = CircleShape
@@ -106,7 +123,7 @@ fun LoginScreen(
                         id = R.drawable.uam_verde
                     ),
 
-                    contentDescription = "Logo UAM Verde",
+                    contentDescription = "Logo",
 
                     modifier = Modifier.fillMaxSize(),
 
@@ -119,7 +136,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Green Events",
+                text = "Crear cuenta",
 
                 fontSize = 28.sp,
 
@@ -129,7 +146,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "UAM VERDE",
+                text = "Green Events - UAM VERDE",
 
                 fontSize = 16.sp,
 
@@ -137,7 +154,7 @@ fun LoginScreen(
             )
 
             Spacer(
-                modifier = Modifier.height(30.dp)
+                modifier = Modifier.height(28.dp)
             )
 
             Card(
@@ -160,22 +177,61 @@ fun LoginScreen(
                     modifier = Modifier.padding(22.dp)
                 ) {
 
-                    Text(
-                        text = "Inicio de sesión",
+                    OutlinedTextField(
+                        value = nombre,
 
-                        fontSize = 22.sp,
+                        onValueChange = {
+                            nombre = it
+                            nombreError = ""
+                        },
 
-                        color = VerdeOscuro,
+                        label = {
+                            Text("Nombre completo")
+                        },
 
-                        fontWeight = FontWeight.Bold,
+                        leadingIcon = {
 
-                        textAlign = TextAlign.Center,
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = VerdeOscuro
+                            )
+                        },
+
+                        singleLine = true,
+
+                        isError = nombreError.isNotEmpty(),
+
+                        textStyle = TextStyle(
+                            color = VerdeOscuro
+                        ),
+
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = VerdeOscuro,
+                            unfocusedTextColor = VerdeOscuro,
+                            focusedBorderColor = VerdeOscuro,
+                            unfocusedBorderColor = GrisClaro,
+                            focusedLabelColor = VerdeOscuro,
+                            unfocusedLabelColor = VerdeOscuro,
+                            cursorColor = VerdeOscuro
+                        ),
 
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    if (nombreError.isNotEmpty()) {
+
+                        Text(
+                            text = nombreError,
+
+                            color = MaterialTheme.colorScheme.error,
+
+                            fontSize = 12.sp
+                        )
+                    }
+
                     Spacer(
-                        modifier = Modifier.height(18.dp)
+                        modifier = Modifier.height(14.dp)
                     )
 
                     OutlinedTextField(
@@ -279,8 +335,7 @@ fun LoginScreen(
                                         else
                                             Icons.Default.VisibilityOff,
 
-                                    contentDescription =
-                                        "Mostrar contraseña",
+                                    contentDescription = null,
 
                                     tint = VerdeOscuro
                                 )
@@ -330,6 +385,96 @@ fun LoginScreen(
                     }
 
                     Spacer(
+                        modifier = Modifier.height(14.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = confirmPassword,
+
+                        onValueChange = {
+                            confirmPassword = it
+                            confirmPasswordError = ""
+                        },
+
+                        label = {
+                            Text("Confirmar contraseña")
+                        },
+
+                        leadingIcon = {
+
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = VerdeOscuro
+                            )
+                        },
+
+                        trailingIcon = {
+
+                            IconButton(
+                                onClick = {
+                                    confirmPasswordVisible =
+                                        !confirmPasswordVisible
+                                }
+                            ) {
+
+                                Icon(
+                                    imageVector =
+                                        if (confirmPasswordVisible)
+                                            Icons.Default.Visibility
+                                        else
+                                            Icons.Default.VisibilityOff,
+
+                                    contentDescription = null,
+
+                                    tint = VerdeOscuro
+                                )
+                            }
+                        },
+
+                        singleLine = true,
+
+                        isError = confirmPasswordError.isNotEmpty(),
+
+                        visualTransformation =
+                            if (confirmPasswordVisible)
+                                VisualTransformation.None
+                            else
+                                PasswordVisualTransformation(),
+
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password
+                        ),
+
+                        textStyle = TextStyle(
+                            color = VerdeOscuro
+                        ),
+
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = VerdeOscuro,
+                            unfocusedTextColor = VerdeOscuro,
+                            focusedBorderColor = VerdeOscuro,
+                            unfocusedBorderColor = GrisClaro,
+                            focusedLabelColor = VerdeOscuro,
+                            unfocusedLabelColor = VerdeOscuro,
+                            cursorColor = VerdeOscuro
+                        ),
+
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (confirmPasswordError.isNotEmpty()) {
+
+                        Text(
+                            text = confirmPasswordError,
+
+                            color = MaterialTheme.colorScheme.error,
+
+                            fontSize = 12.sp
+                        )
+                    }
+
+                    Spacer(
                         modifier = Modifier.height(24.dp)
                     )
 
@@ -338,16 +483,24 @@ fun LoginScreen(
 
                             when {
 
+                                nombre.isBlank() -> {
+                                    nombreError =
+                                        "Ingrese su nombre"
+                                }
+
                                 cif.isBlank() -> {
-                                    cifError = "Ingrese su CIF"
+                                    cifError =
+                                        "Ingrese su CIF"
                                 }
 
                                 cif.length != 8 -> {
-                                    cifError = "El CIF debe tener 8 números"
+                                    cifError =
+                                        "El CIF debe tener 8 números"
                                 }
 
                                 password.isBlank() -> {
-                                    passwordError = "Ingrese su contraseña"
+                                    passwordError =
+                                        "Ingrese una contraseña"
                                 }
 
                                 password.length < 6 -> {
@@ -355,8 +508,13 @@ fun LoginScreen(
                                         "La contraseña debe tener mínimo 6 caracteres"
                                 }
 
+                                confirmPassword != password -> {
+                                    confirmPasswordError =
+                                        "Las contraseñas no coinciden"
+                                }
+
                                 else -> {
-                                    onLoginClick(isAdmin)
+                                    onRegisterClick()
                                 }
                             }
                         },
@@ -374,7 +532,7 @@ fun LoginScreen(
                     ) {
 
                         Text(
-                            text = "Ingresar",
+                            text = "Registrarse",
 
                             fontSize = 16.sp,
 
@@ -383,63 +541,12 @@ fun LoginScreen(
                     }
 
                     Spacer(
-                        modifier = Modifier.height(18.dp)
-                    )
-
-                    Text(
-                        text = "Ingresar como",
-
-                        color = VerdeOscuro,
-
-                        fontWeight = FontWeight.SemiBold,
-
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(12.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-
-                        OutlinedButton(
-                            onClick = {
-                                isAdmin = false
-                            },
-
-                            shape = RoundedCornerShape(50.dp)
-                        ) {
-
-                            Text("Estudiante")
-                        }
-
-                        Spacer(
-                            modifier = Modifier.width(12.dp)
-                        )
-
-                        OutlinedButton(
-                            onClick = {
-                                isAdmin = true
-                            },
-
-                            shape = RoundedCornerShape(50.dp)
-                        ) {
-
-                            Text("Administrador")
-                        }
-                    }
-
-                    Spacer(
                         modifier = Modifier.height(16.dp)
                     )
 
                     TextButton(
                         onClick = {
-                            onRegisterClick()
+                            onBackToLogin()
                         },
 
                         modifier = Modifier.align(
@@ -448,7 +555,7 @@ fun LoginScreen(
                     ) {
 
                         Text(
-                            text = "¿No tienes cuenta? Regístrate",
+                            text = "Volver al inicio de sesión",
 
                             color = VerdeOscuro,
 
@@ -463,7 +570,7 @@ fun LoginScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLoginScreen() {
+fun PreviewRegisterScreen() {
 
-    LoginScreen()
+    RegisterScreen()
 }

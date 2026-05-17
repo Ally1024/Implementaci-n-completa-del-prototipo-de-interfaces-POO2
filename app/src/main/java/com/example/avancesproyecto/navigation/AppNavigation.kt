@@ -11,6 +11,7 @@ import com.example.avancesproyecto.ui.theme.Screen.DetailScreen
 import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
 import com.example.avancesproyecto.ui.theme.Screen.InscripcionScreen
 import com.example.avancesproyecto.ui.theme.Screen.LoginScreen
+import com.example.avancesproyecto.ui.theme.Screen.RegisterScreen
 import com.example.avancesproyecto.ui.theme.Screen.RegisteredScreen
 import com.example.avancesproyecto.viewmodel.EventViewModel
 
@@ -23,7 +24,6 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-
         startDestination = Routes.LOGIN
     ) {
 
@@ -42,6 +42,30 @@ fun AppNavigation() {
                             inclusive = true
                         }
                     }
+                },
+
+                onRegisterClick = {
+
+                    navController.navigate(
+                        "register"
+                    )
+                }
+            )
+        }
+
+        // REGISTER
+        composable("register") {
+
+            RegisterScreen(
+
+                onRegisterClick = {
+
+                    navController.popBackStack()
+                },
+
+                onBackToLogin = {
+
+                    navController.popBackStack()
                 }
             )
         }
