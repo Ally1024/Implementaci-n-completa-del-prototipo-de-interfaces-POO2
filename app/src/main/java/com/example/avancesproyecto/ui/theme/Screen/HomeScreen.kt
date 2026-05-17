@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -11,11 +12,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,18 @@ fun HomeScreen(
 ) {
 
     val registeredEvents by viewModel.registeredEvents
+
+    var showDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var selectedEventTitle by remember {
+        mutableStateOf("")
+    }
+
+    var selectedEventId by remember {
+        mutableStateOf(0)
+    }
 
     Scaffold(
 
@@ -229,13 +243,9 @@ fun HomeScreen(
 
                                 } else {
 
-                                    viewModel.registerForEvent(
-                                        event.id
-                                    )
-
-                                    navController.navigate(
-                                        Routes.INSCRIPCION
-                                    )
+                                    selectedEventTitle = event.title
+                                    selectedEventId = event.id
+                                    showDialog = true
                                 }
                             },
 
@@ -265,5 +275,69 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    if (showDialog) {
+
+        AlertDialog(
+
+            onDismissRequest = {
+                showDialog = false
+            },
+
+            title = {
+
+                Text(
+                    text = "Confirmar inscripción"
+                )
+            },
+
+            text = {
+
+                Text(
+                    text =
+                        "¿Deseas inscribirte al evento \"$selectedEventTitle\"?"
+                )
+            },
+
+            confirmButton = {
+
+                Button(
+
+                    onClick = {
+
+                        viewModel.registerForEvent(
+                            selectedEventId
+                        )
+
+                        showDialog = false
+
+                        navController.navigate(
+                            Routes.INSCRIPCION
+                        )
+                    },
+
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VerdeOscuro
+                    )
+                ) {
+
+                    Text("Confirmar")
+                }
+            },
+
+            dismissButton = {
+
+                OutlinedButton(
+
+                    onClick = {
+                        showDialog = false
+                    }
+                ) {
+
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }

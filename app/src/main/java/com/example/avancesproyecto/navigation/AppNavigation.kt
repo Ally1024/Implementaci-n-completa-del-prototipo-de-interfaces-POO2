@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.avancesproyecto.ui.theme.Screen.AddEventScreen
+import com.example.avancesproyecto.ui.theme.Screen.AdminPanelScreen
 import com.example.avancesproyecto.ui.theme.Screen.DetailScreen
 import com.example.avancesproyecto.ui.theme.Screen.HomeScreen
 import com.example.avancesproyecto.ui.theme.Screen.InscripcionScreen
@@ -32,14 +33,28 @@ fun AppNavigation() {
 
             LoginScreen(
 
-                onLoginClick = {
+                onLoginClick = { isAdmin ->
 
-                    navController.navigate(
-                        Routes.HOME
-                    ) {
+                    if (isAdmin) {
 
-                        popUpTo(Routes.LOGIN) {
-                            inclusive = true
+                        navController.navigate(
+                            Routes.ADMIN
+                        ) {
+
+                            popUpTo(Routes.LOGIN) {
+                                inclusive = true
+                            }
+                        }
+
+                    } else {
+
+                        navController.navigate(
+                            Routes.HOME
+                        ) {
+
+                            popUpTo(Routes.LOGIN) {
+                                inclusive = true
+                            }
                         }
                     }
                 },
@@ -74,6 +89,15 @@ fun AppNavigation() {
         composable(Routes.HOME) {
 
             HomeScreen(
+                navController,
+                viewModel
+            )
+        }
+
+        // ADMIN
+        composable(Routes.ADMIN) {
+
+            AdminPanelScreen(
                 navController,
                 viewModel
             )

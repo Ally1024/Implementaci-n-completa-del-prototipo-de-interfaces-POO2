@@ -9,4 +9,6 @@ object Routes {
     const val INSCRIPCION = "inscripcion"
 
     const val ADD_EVENT = "add_event"
+
+    const val ADMIN = "admin"
 }
