@@ -147,5 +147,24 @@ fun AppNavigation() {
                 navController = navController
             )
         }
+
+        composable(
+            "${Routes.EDIT_EVENT}/{eventId}"
+        ) { backStack ->
+
+            val id =
+                backStack.arguments
+                    ?.getString("eventId")
+                    ?.toInt() ?: 0
+
+            EditEventScreen(
+
+                eventId = id,
+
+                navController = navController,
+
+                viewModel = viewModel
+            )
+        }
     }
 }

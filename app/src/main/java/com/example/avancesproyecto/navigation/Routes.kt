@@ -14,4 +14,6 @@ object Routes {
 
     const val DELETE_EVENT ="delete_event"
     const val ADMIN = "admin"
+
+    const val EDIT_EVENT = "edit_event"
 }
