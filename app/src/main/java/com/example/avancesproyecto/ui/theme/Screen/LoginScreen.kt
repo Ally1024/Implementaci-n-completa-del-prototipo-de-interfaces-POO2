@@ -6,10 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -37,10 +37,10 @@ import com.example.avancesproyecto.ui.theme.White
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {}
+    onLoginClick: (Boolean) -> Unit = {}
 ) {
 
-    var email by rememberSaveable {
+    var cif by rememberSaveable {
         mutableStateOf("")
     }
 
@@ -52,11 +52,15 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    var emailError by remember {
-        mutableStateOf(false)
+    var cifError by remember {
+        mutableStateOf("")
     }
 
     var passwordError by remember {
+        mutableStateOf("")
+    }
+
+    var isAdmin by remember {
         mutableStateOf(false)
     }
 
@@ -110,17 +114,25 @@ fun LoginScreen(
             }
 
             Spacer(
-                modifier = Modifier.height(22.dp)
+                modifier = Modifier.height(20.dp)
             )
 
             Text(
-                text = "UAM X Green Events",
+                text = "Green Events",
 
                 fontSize = 28.sp,
 
                 color = VerdeOscuro,
 
                 fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "UAM VERDE",
+
+                fontSize = 16.sp,
+
+                color = VerdeOscuro
             )
 
             Spacer(
@@ -166,11 +178,15 @@ fun LoginScreen(
                     )
 
                     OutlinedTextField(
-                        value = email,
+                        value = cif,
 
                         onValueChange = {
-                            email = it
-                            emailError = false
+
+                            if (it.length <= 8 && it.all { char -> char.isDigit() }) {
+                                cif = it
+                            }
+
+                            cifError = ""
                         },
 
                         label = {
@@ -180,7 +196,7 @@ fun LoginScreen(
                         leadingIcon = {
 
                             Icon(
-                                Icons.Default.Email,
+                                Icons.Default.Badge,
                                 contentDescription = null,
                                 tint = VerdeOscuro
                             )
@@ -188,10 +204,10 @@ fun LoginScreen(
 
                         singleLine = true,
 
-                        isError = emailError,
+                        isError = cifError.isNotEmpty(),
 
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email
+                            keyboardType = KeyboardType.Number
                         ),
 
                         textStyle = TextStyle(
@@ -211,10 +227,10 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    if (emailError) {
+                    if (cifError.isNotEmpty()) {
 
                         Text(
-                            text = "El CIF es obligatorio",
+                            text = cifError,
 
                             color = MaterialTheme.colorScheme.error,
 
@@ -231,7 +247,7 @@ fun LoginScreen(
 
                         onValueChange = {
                             password = it
-                            passwordError = false
+                            passwordError = ""
                         },
 
                         label = {
@@ -251,8 +267,7 @@ fun LoginScreen(
 
                             IconButton(
                                 onClick = {
-                                    passwordVisible =
-                                        !passwordVisible
+                                    passwordVisible = !passwordVisible
                                 }
                             ) {
 
@@ -273,7 +288,7 @@ fun LoginScreen(
 
                         singleLine = true,
 
-                        isError = passwordError,
+                        isError = passwordError.isNotEmpty(),
 
                         visualTransformation =
 
@@ -303,10 +318,10 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    if (passwordError) {
+                    if (passwordError.isNotEmpty()) {
 
                         Text(
-                            text = "La contraseña es obligatoria",
+                            text = passwordError,
 
                             color = MaterialTheme.colorScheme.error,
 
@@ -321,12 +336,28 @@ fun LoginScreen(
                     Button(
                         onClick = {
 
-                            emailError = email.isBlank()
-                            passwordError = password.isBlank()
+                            when {
 
-                            if (!emailError && !passwordError) {
+                                cif.isBlank() -> {
+                                    cifError = "Ingrese su CIF"
+                                }
 
-                                onLoginClick()
+                                cif.length != 8 -> {
+                                    cifError = "El CIF debe tener 8 números"
+                                }
+
+                                password.isBlank() -> {
+                                    passwordError = "Ingrese su contraseña"
+                                }
+
+                                password.length < 6 -> {
+                                    passwordError =
+                                        "La contraseña debe tener mínimo 6 caracteres"
+                                }
+
+                                else -> {
+                                    onLoginClick(isAdmin)
+                                }
                             }
                         },
 
@@ -343,12 +374,79 @@ fun LoginScreen(
                     ) {
 
                         Text(
-                            text = "Iniciar sesión",
+                            text = "Ingresar",
 
                             fontSize = 16.sp,
 
                             fontWeight = FontWeight.Bold
                         )
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(18.dp)
+                    )
+
+                    Text(
+                        text = "Ingresar como",
+
+                        color = VerdeOscuro,
+
+                        fontWeight = FontWeight.SemiBold,
+
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+
+                        OutlinedButton(
+                            onClick = {
+                                isAdmin = false
+                            },
+
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor =
+                                    if (!isAdmin) VerdeOscuro else White,
+
+                                contentColor =
+                                    if (!isAdmin) White else VerdeOscuro
+                            ),
+
+                            shape = RoundedCornerShape(50.dp)
+                        ) {
+
+                            Text("Estudiante")
+                        }
+
+                        Spacer(
+                            modifier = Modifier.width(12.dp)
+                        )
+
+                        OutlinedButton(
+                            onClick = {
+                                isAdmin = true
+                            },
+
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor =
+                                    if (isAdmin) VerdeOscuro else White,
+
+                                contentColor =
+                                    if (isAdmin) White else VerdeOscuro
+                            ),
+
+                            shape = RoundedCornerShape(50.dp)
+                        ) {
+
+                            Text("Administrador")
+                        }
                     }
 
                     Spacer(
