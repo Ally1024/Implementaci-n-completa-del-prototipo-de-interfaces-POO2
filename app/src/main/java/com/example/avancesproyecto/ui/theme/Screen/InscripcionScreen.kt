@@ -8,6 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,246 +29,177 @@ import com.example.avancesproyecto.ui.theme.GrisClaro
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InscripcionScreen(
     navController: NavHostController
 ) {
 
-    var cif by remember {
-        mutableStateOf("")
-    }
-
-    var carrera by remember {
-        mutableStateOf("")
-    }
-
-    var beneficio by remember {
-        mutableStateOf("")
-    }
-
+    var cif by remember { mutableStateOf("") }
+    var carrera by remember { mutableStateOf("") }
+    var beneficio by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        VerdeOscuro,
-                        White
-                    )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Información") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = VerdeOscuro,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
-    ) {
+        }
+    ) { padding ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-            verticalArrangement = Arrangement.Center
+                .padding(padding)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(VerdeOscuro, White)
+                    )
+                )
         ) {
 
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(150.dp)
-                    .background(
-                        color = White,
-                        shape = CircleShape
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .size(150.dp)
+                        .background(color = White, shape = CircleShape)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.uam_verde),
+                        contentDescription = "Logo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
-                    .padding(16.dp),
+                }
 
-                contentAlignment = Alignment.Center
-            ) {
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Image(
-                    painter = painterResource(
-                        id = R.drawable.uam_verde
-                    ),
-
-                    contentDescription = "Logo",
-
-                    modifier = Modifier.fillMaxSize(),
-
-                    contentScale = ContentScale.Fit
+                Text(
+                    text = "Formulario de Inscripción",
+                    fontSize = 28.sp,
+                    color = White,
+                    fontWeight = FontWeight.Bold
                 )
-            }
 
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
+                Spacer(modifier = Modifier.height(30.dp))
 
-            Text(
-                text = "Formulario de Inscripción",
-
-                fontSize = 28.sp,
-
-                color = White,
-
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(
-                modifier = Modifier.height(30.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-
-                shape = RoundedCornerShape(24.dp),
-
-                colors = CardDefaults.cardColors(
-                    containerColor = White
-                ),
-
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 10.dp
-                )
-            ) {
-
-                Column(
-                    modifier = Modifier.padding(22.dp)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                 ) {
 
-                    OutlinedTextField(
-                        value = cif,
+                    Column(modifier = Modifier.padding(22.dp)) {
 
-                        onValueChange = {
-                            cif = it
-                        },
+                        OutlinedTextField(
+                            value = cif,
+                            onValueChange = { cif = it },
+                            label = { Text("CIF") },
+                            textStyle = TextStyle(color = VerdeOscuro),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = VerdeOscuro,
+                                unfocusedTextColor = VerdeOscuro,
+                                focusedBorderColor = VerdeOscuro,
+                                unfocusedBorderColor = GrisClaro,
+                                focusedLabelColor = VerdeOscuro,
+                                unfocusedLabelColor = VerdeOscuro,
+                                cursorColor = VerdeOscuro
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                        label = {
-                            Text("CIF")
-                        },
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
+                        OutlinedTextField(
+                            value = carrera,
+                            onValueChange = { carrera = it },
+                            label = { Text("Carrera") },
+                            textStyle = TextStyle(color = VerdeOscuro),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = VerdeOscuro,
+                                unfocusedTextColor = VerdeOscuro,
+                                focusedBorderColor = VerdeOscuro,
+                                unfocusedBorderColor = GrisClaro,
+                                focusedLabelColor = VerdeOscuro,
+                                unfocusedLabelColor = VerdeOscuro,
+                                cursorColor = VerdeOscuro
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            focusedLabelColor = VerdeOscuro,
-                            unfocusedLabelColor = VerdeOscuro,
-                            cursorColor = VerdeOscuro
-                        ),
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                        OutlinedTextField(
+                            value = beneficio,
+                            onValueChange = { beneficio = it },
+                            label = { Text("Beneficio") },
+                            textStyle = TextStyle(color = VerdeOscuro),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = VerdeOscuro,
+                                unfocusedTextColor = VerdeOscuro,
+                                focusedBorderColor = VerdeOscuro,
+                                unfocusedBorderColor = GrisClaro,
+                                focusedLabelColor = VerdeOscuro,
+                                unfocusedLabelColor = VerdeOscuro,
+                                cursorColor = VerdeOscuro
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
+                        Spacer(modifier = Modifier.height(28.dp))
 
-                    OutlinedTextField(
-                        value = carrera,
+                        Button(
+                            onClick = {
+                                Toast.makeText(
+                                    context,
+                                    "Inscripción realizada correctamente",
+                                    Toast.LENGTH_LONG
+                                ).show()
 
-                        onValueChange = {
-                            carrera = it
-                        },
-
-                        label = {
-                            Text("Carrera")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            focusedLabelColor = VerdeOscuro,
-                            unfocusedLabelColor = VerdeOscuro,
-                            cursorColor = VerdeOscuro
-                        ),
-
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = beneficio,
-
-                        onValueChange = {
-                            beneficio = it
-                        },
-
-                        label = {
-                            Text("Beneficio")
-                        },
-
-                        textStyle = TextStyle(
-                            color = VerdeOscuro
-                        ),
-
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = VerdeOscuro,
-                            unfocusedTextColor = VerdeOscuro,
-                            focusedBorderColor = VerdeOscuro,
-                            unfocusedBorderColor = GrisClaro,
-                            focusedLabelColor = VerdeOscuro,
-                            unfocusedLabelColor = VerdeOscuro,
-                            cursorColor = VerdeOscuro
-                        ),
-
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(28.dp)
-                    )
-
-                    Button(
-                        onClick = {
-
-                            Toast.makeText(
-                                context,
-                                "Inscripción realizada correctamente",
-                                Toast.LENGTH_LONG
-                            ).show()
-
-                            navController.navigate(
-                                Routes.REGISTERED
-                            ) {
-
-                                popUpTo(Routes.HOME) {
-                                    inclusive = false
+                                navController.navigate(Routes.REGISTERED) {
+                                    popUpTo(Routes.HOME) { inclusive = false }
+                                    launchSingleTop = true
                                 }
-
-                                launchSingleTop = true
-                            }
-                        },
-
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(55.dp),
-
-                        shape = RoundedCornerShape(50.dp),
-
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = VerdeOscuro,
-                            contentColor = White
-                        )
-                    ) {
-
-                        Text(
-                            text = "Confirmar inscripción",
-
-                            fontSize = 16.sp,
-
-                            fontWeight = FontWeight.Bold
-                        )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(55.dp),
+                            shape = RoundedCornerShape(50.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = VerdeOscuro,
+                                contentColor = White
+                            )
+                        ) {
+                            Text(
+                                text = "Confirmar inscripción",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }

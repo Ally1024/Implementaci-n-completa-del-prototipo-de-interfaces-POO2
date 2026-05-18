@@ -3,6 +3,8 @@ package com.example.avancesproyecto.ui.theme.Screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -64,6 +66,22 @@ fun AdminPanelScreen(
 
                 title = {
                     Text("Panel Administrador")
+                },
+                
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.ADMIN) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Cerrar sesión",
+                            tint = White
+                        )
+                    }
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(

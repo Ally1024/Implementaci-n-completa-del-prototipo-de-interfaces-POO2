@@ -101,7 +101,8 @@ fun AppNavigation() {
         composable(Routes.DELETE_EVENT) {
 
             DeleteEventScreen(
-                viewModel = viewModel
+                viewModel = viewModel,
+                navController = navController
             )
         }
 

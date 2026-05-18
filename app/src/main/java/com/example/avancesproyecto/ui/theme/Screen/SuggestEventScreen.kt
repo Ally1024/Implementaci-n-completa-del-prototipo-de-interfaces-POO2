@@ -1,6 +1,8 @@
 package com.example.avancesproyecto.ui.theme.Screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +18,7 @@ import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
 import com.example.avancesproyecto.viewmodel.EventViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuggestEventScreen(
     navController: NavHostController,
@@ -28,19 +31,35 @@ fun SuggestEventScreen(
     var locacion by remember { mutableStateOf("") }
     var capacidad by remember { mutableStateOf("") }
 
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Sugerir Evento") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = VerdeOscuro,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(padding)
             .padding(16.dp),
 
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        Text(
-            text = "Sugerir Evento",
-            style = MaterialTheme.typography.headlineSmall,
-            color = VerdeOscuro
-        )
 
         OutlinedTextField(
 
@@ -226,5 +245,6 @@ fun SuggestEventScreen(
 
             Text("Enviar sugerencia")
         }
+    }
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,6 +41,21 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Green Events UAM") },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.HOME) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Cerrar sesión",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = VerdeOscuro,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary

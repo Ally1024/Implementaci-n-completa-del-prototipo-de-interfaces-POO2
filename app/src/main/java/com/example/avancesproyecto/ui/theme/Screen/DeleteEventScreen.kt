@@ -3,6 +3,8 @@ package com.example.avancesproyecto.ui.theme.Screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.avancesproyecto.model.Event
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.viewmodel.EventViewModel
@@ -17,7 +20,8 @@ import com.example.avancesproyecto.viewmodel.EventViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteEventScreen(
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
+    navController: NavHostController? = null
 ) {
 
     // =========================
@@ -35,6 +39,17 @@ fun DeleteEventScreen(
 
                 title = {
                     Text("Eliminar Eventos")
+                },
+
+                navigationIcon = {
+                    if (navController != null) {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Volver"
+                            )
+                        }
+                    }
                 },
 
                 colors = TopAppBarDefaults.topAppBarColors(
