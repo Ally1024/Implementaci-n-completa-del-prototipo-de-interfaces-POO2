@@ -4,12 +4,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.avancesproyecto.model.UserType
 
-@Entity (tableName = "TblUsers")
-data class UserEntity (
+@Entity(tableName = "users")
+data class UserEntity(
     @PrimaryKey val id: Int,
     val name: String,
     val cif: String,
-    val userType: UserType = UserType.ESTUDIANTE,
+    val userType: String = "ESTUDIANTE",
     val isBlocked: Boolean = false,
     val registrationDate: String = ""
 )

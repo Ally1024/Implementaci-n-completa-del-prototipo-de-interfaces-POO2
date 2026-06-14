@@ -17,12 +17,19 @@ object RetrofitClient {
         .addInterceptor(logging)
         .build()
 
-    val eventApi: EventApi by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(EventApi::class.java)
+    }
+
+    val eventApi: EventApi by lazy {
+        retrofit.create(EventApi::class.java)
+    }
+
+    val userApi: UserApi by lazy {
+        retrofit.create(UserApi::class.java)
     }
 }

@@ -5,14 +5,22 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.avancesproyecto.data.local.dao.EventDao
+import com.example.avancesproyecto.data.local.dao.UserDao
 import com.example.avancesproyecto.data.local.entity.EventEntity
+import com.example.avancesproyecto.data.local.entity.UserEntity
+
 @Database(
-    entities = [EventEntity::class],
-    version = 1
+    entities = [
+        EventEntity::class,
+        UserEntity::class
+    ],
+    version = 2,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun eventDao(): EventDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile
