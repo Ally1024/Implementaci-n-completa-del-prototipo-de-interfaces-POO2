@@ -365,23 +365,22 @@ fun AddEventScreen(
                                 else -> {
 
                                     viewModel.addEvent(
-                                        nombre,
-                                        descripcion,
-                                        fecha,
-                                        locacion,
-                                        cap
-                                    )
-
-                                    navController.navigate(
-                                        Routes.ADMIN
-                                    ) {
-
-                                        popUpTo(
-                                            Routes.ADD_EVENT
-                                        ) {
-                                            inclusive = true
+                                        nombre = nombre,
+                                        descripcion = descripcion,
+                                        fecha = fecha,
+                                        locacion = locacion,
+                                        capacidad = cap,
+                                        onSuccess = {
+                                            navController.navigate(Routes.ADMIN) {
+                                                popUpTo(Routes.ADD_EVENT) {
+                                                    inclusive = true
+                                                }
+                                            }
+                                        },
+                                        onError = { mensaje ->
+                                            errorMensaje = mensaje
                                         }
-                                    }
+                                    )
                                 }
                             }
                         },

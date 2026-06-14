@@ -1,22 +1,62 @@
 package com.example.avancesproyecto.viewmodel
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.avancesproyecto.data.local.database.AppDatabase
+import com.example.avancesproyecto.data.remote.RetrofitClient
+import com.example.avancesproyecto.data.repository.EventRepository
 import com.example.avancesproyecto.model.Event
 import com.example.avancesproyecto.model.Suggestion
 import com.example.avancesproyecto.model.User
 import com.example.avancesproyecto.model.UserType
+import kotlinx.coroutines.launch
+import android.util.Log
 
-class EventViewModel : ViewModel() {
+class EventViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val database = AppDatabase.getDatabase(application)
+
+    private val eventRepository = EventRepository(
+        api = RetrofitClient.eventApi,
+        dao = database.eventDao()
+    )
+
+    val events = mutableStateListOf<Event>()
+
+    init {
+        observeLocalEvents()
+        refreshEvents()
+    }
+
+    // =======================
+    // EVENTOS - OBSERVACIÓN Y SINCRONIZACIÓN
+    // =======================
+
+    private fun observeLocalEvents() {
+        viewModelScope.launch {
+            eventRepository.events.collect { eventList ->
+                events.clear()
+                events.addAll(eventList)
+            }
+        }
+    }
+
+    fun refreshEvents() {
+        viewModelScope.launch {
+            try {
+                eventRepository.syncEvents()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     // =======================
     // EVENTOS
     // =======================
 
-    private val _events = mutableStateListOf<Event>()
-
-    val events: List<Event>
-        get() = _events
 
 
     // AGREGAR EVENTO
@@ -25,40 +65,46 @@ class EventViewModel : ViewModel() {
         descripcion: String,
         fecha: String,
         locacion: String,
-        capacidad: Int
+        capacidad: Int,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
     ) {
-
         val newEvent = Event(
-
-            id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
-
+            id = 0,
             title = nombre,
-
             description = descripcion,
-
             date = fecha,
-
             location = locacion,
-
             maxCapacity = capacidad,
-
-            attendees = 0
+            attendees = 0,
+            latitude = 0.0,
+            longitude = 0.0,
+            isOpen = true,
+            isFeatured = false
         )
 
-        _events.add(newEvent)
-    }
+        viewModelScope.launch {
+            try {
+                Log.d("EVENT_DEBUG", "Intentando guardar evento: $newEvent")
 
+                eventRepository.addEvent(newEvent)
+
+                Log.d("EVENT_DEBUG", "Evento guardado correctamente")
+
+                refreshEvents()
+
+                onSuccess()
+
+            } catch (e: Exception) {
+                Log.e("EVENT_DEBUG", "Error al guardar evento", e)
+                onError("No se pudo guardar el evento. Revisa la conexión con el backend.")
+            }
+        }
+    }
 
     // INSCRIBIRSE
     fun joinEvent(eventId: Int) {
-
-        val index = _events.indexOfFirst {
-            it.id == eventId
-        }
-
-        if (index == -1) return
-
-        val event = _events[index]
+        val event = events.find { it.id == eventId } ?: return
 
         // EVENTO CERRADO
         if (!event.isOpen) return
@@ -66,17 +112,24 @@ class EventViewModel : ViewModel() {
         // EVENTO LLENO
         if (event.attendees >= event.maxCapacity) return
 
-        _events[index] = event.copy(
-            attendees = event.attendees + 1
-        )
+        viewModelScope.launch {
+            try {
+                eventRepository.joinEvent(eventId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
 
     // ELIMINAR EVENTO
     fun deleteEvent(eventId: Int) {
-
-        _events.removeAll {
-            it.id == eventId
+        viewModelScope.launch {
+            try {
+                eventRepository.deleteEvent(eventId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -90,27 +143,23 @@ class EventViewModel : ViewModel() {
         location: String,
         capacity: Int
     ) {
+        val event = events.find { it.id == eventId } ?: return
 
-        val index = _events.indexOfFirst {
-            it.id == eventId
-        }
-
-        if (index == -1) return
-
-        val oldEvent = _events[index]
-
-        _events[index] = oldEvent.copy(
-
+        val updatedEvent = event.copy(
             title = title,
-
             description = description,
-
             date = date,
-
             location = location,
-
             maxCapacity = capacity
         )
+
+        viewModelScope.launch {
+            try {
+                eventRepository.updateEvent(updatedEvent)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
 
@@ -130,35 +179,33 @@ class EventViewModel : ViewModel() {
 
     // DESTACAR EVENTO
     fun toggleFeatured(eventId: Int) {
+        val event = events.find { it.id == eventId } ?: return
 
-        val index = _events.indexOfFirst {
-            it.id == eventId
+        viewModelScope.launch {
+            try {
+                eventRepository.updateEvent(
+                    event.copy(isFeatured = !event.isFeatured)
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-
-        if (index == -1) return
-
-        val event = _events[index]
-
-        _events[index] = event.copy(
-            isFeatured = !event.isFeatured
-        )
     }
 
 
     // ABRIR / CERRAR EVENTO
     fun toggleEventStatus(eventId: Int) {
+        val event = events.find { it.id == eventId } ?: return
 
-        val index = _events.indexOfFirst {
-            it.id == eventId
+        viewModelScope.launch {
+            try {
+                eventRepository.updateEvent(
+                    event.copy(isOpen = !event.isOpen)
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-
-        if (index == -1) return
-
-        val event = _events[index]
-
-        _events[index] = event.copy(
-            isOpen = !event.isOpen
-        )
     }
 
 
@@ -171,6 +218,11 @@ class EventViewModel : ViewModel() {
                 (event.attendees.toFloat() /
                         event.maxCapacity) * 100
                 ).toInt()
+    }
+
+    // OBTENER EVENTO POR ID
+    fun getEventById(eventId: Int): Event? {
+        return events.find { it.id == eventId }
     }
 
 
