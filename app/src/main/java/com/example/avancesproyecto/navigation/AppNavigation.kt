@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.avancesproyecto.ui.theme.Screen.*
 import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation() {
@@ -15,6 +16,8 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val viewModel: EventViewModel = viewModel()
+
+    val userViewModel : UserViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -59,7 +62,7 @@ fun AppNavigation() {
         composable("register") {
 
             RegisterScreen(
-                viewModel = viewModel,
+                viewModel = userViewModel,
                 onRegisterClick = {
                     navController.popBackStack()
                 },
@@ -171,7 +174,7 @@ fun AppNavigation() {
         composable(Routes.USERS_MANAGEMENT) {
 
             UsersManagementScreen(
-                viewModel = viewModel,
+                viewModel = userViewModel,
                 onBackClick = {
                     navController.popBackStack()
                 }

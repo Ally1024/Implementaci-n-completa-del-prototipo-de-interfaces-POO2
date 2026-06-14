@@ -16,12 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.avancesproyecto.model.User
 import com.example.avancesproyecto.model.UserType
-import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsersManagementScreen(
-    viewModel: EventViewModel,
+    viewModel: UserViewModel,
     onBackClick: () -> Unit
 ) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }

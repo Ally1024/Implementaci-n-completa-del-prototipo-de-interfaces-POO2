@@ -9,8 +9,6 @@ import com.example.avancesproyecto.data.remote.RetrofitClient
 import com.example.avancesproyecto.data.repository.EventRepository
 import com.example.avancesproyecto.model.Event
 import com.example.avancesproyecto.model.Suggestion
-import com.example.avancesproyecto.model.User
-import com.example.avancesproyecto.model.UserType
 import kotlinx.coroutines.launch
 import android.util.Log
 
@@ -303,85 +301,5 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    // =======================
-    // USUARIOS
-    // =======================
 
-    private val _users = mutableStateListOf<User>()
-
-    val users: List<User>
-        get() = _users
-
-    // INICIALIZAR USUARIOS DE PRUEBA
-    fun initializeUsers() {
-        // Los usuarios solo se agregan mediante registro
-    }
-
-    // AGREGAR USUARIO
-    fun addUser(
-        name: String,
-        cif: String,
-        userType: UserType = UserType.ESTUDIANTE
-    ) {
-        val newUser = User(
-            id = (System.currentTimeMillis() % Int.MAX_VALUE).toInt(),
-            name = name,
-            cif = cif,
-            userType = userType,
-            registrationDate = getCurrentDate()
-        )
-        _users.add(newUser)
-    }
-
-    // ELIMINAR USUARIO
-    fun deleteUser(userId: Int) {
-        _users.removeAll { it.id == userId }
-    }
-
-    // BLOQUEAR/DESBLOQUEAR USUARIO
-    fun toggleBlockUser(userId: Int) {
-        val index = _users.indexOfFirst { it.id == userId }
-        if (index == -1) return
-
-        val user = _users[index]
-        _users[index] = user.copy(isBlocked = !user.isBlocked)
-    }
-
-    // OBTENER USUARIO POR ID
-    fun getUser(userId: Int): User? {
-        return _users.find { it.id == userId }
-    }
-
-    // CONTAR USUARIOS ACTIVOS
-    fun countActiveUsers(): Int {
-        return _users.count { !it.isBlocked }
-    }
-
-    // CONTAR USUARIOS BLOQUEADOS
-    fun countBlockedUsers(): Int {
-        return _users.count { it.isBlocked }
-    }
-
-    // CONTAR USUARIOS POR TIPO
-    fun countUsersByType(userType: UserType): Int {
-        return _users.count { it.userType == userType }
-    }
-
-    // FILTRAR USUARIOS POR BÚSQUEDA
-    fun searchUsers(query: String): List<User> {
-        if (query.isEmpty()) return _users
-        return _users.filter {
-            it.name.contains(query, ignoreCase = true) ||
-            it.cif.contains(query, ignoreCase = true)
-        }
-    }
-
-    // FUNCIÓN AUXILIAR PARA OBTENER FECHA ACTUAL
-    private fun getCurrentDate(): String {
-        val calendar = java.util.Calendar.getInstance()
-        val year = calendar.get(java.util.Calendar.YEAR)
-        val month = calendar.get(java.util.Calendar.MONTH) + 1
-        val day = calendar.get(java.util.Calendar.DAY_OF_MONTH)
-        return String.format("%04d-%02d-%02d", year, month, day)
-    }
 }

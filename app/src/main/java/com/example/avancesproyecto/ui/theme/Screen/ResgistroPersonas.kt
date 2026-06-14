@@ -35,12 +35,12 @@ import com.example.avancesproyecto.R
 import com.example.avancesproyecto.ui.theme.GrisClaro
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
-import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.UserViewModel
 import com.example.avancesproyecto.model.UserType
 
 @Composable
 fun RegisterScreen(
-    viewModel: EventViewModel? = null,
+    viewModel: UserViewModel? = null,
     onRegisterClick: () -> Unit = {},
     onBackToLogin: () -> Unit = {}
 ) {
