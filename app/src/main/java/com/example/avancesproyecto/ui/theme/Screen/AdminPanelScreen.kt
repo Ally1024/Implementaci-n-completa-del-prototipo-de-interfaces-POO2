@@ -16,12 +16,14 @@ import com.example.avancesproyecto.navigation.Routes
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
 import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.SuggestionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanelScreen(
     navController: NavHostController,
-    viewModel: EventViewModel
+    viewModel: EventViewModel,
+    suggestionViewModel: SuggestionViewModel
 ) {
 
     // =========================
@@ -474,7 +476,7 @@ fun AdminPanelScreen(
                     )
                 }
 
-                items(viewModel.suggestions) { suggestion ->
+                items(suggestionViewModel.suggestions) { suggestion ->
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -523,8 +525,11 @@ fun AdminPanelScreen(
                                 Button(
 
                                     onClick = {
-                                        viewModel.approveSuggestion(
-                                            suggestion
+                                        suggestionViewModel.approveSuggestion(
+                                            suggestionId = suggestion.id,
+                                            onSuccess = {
+                                                viewModel.refreshEvents()
+                                            }
                                         )
                                     }
 
@@ -540,8 +545,8 @@ fun AdminPanelScreen(
                                 Button(
 
                                     onClick = {
-                                        viewModel.rejectSuggestion(
-                                            suggestion
+                                        suggestionViewModel.rejectSuggestion(
+                                            suggestionId = suggestion.id
                                         )
                                     },
 

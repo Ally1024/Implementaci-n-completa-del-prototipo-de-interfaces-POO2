@@ -16,13 +16,13 @@ import androidx.navigation.NavHostController
 import com.example.avancesproyecto.ui.theme.GrisClaro
 import com.example.avancesproyecto.ui.theme.VerdeOscuro
 import com.example.avancesproyecto.ui.theme.White
-import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.SuggestionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuggestEventScreen(
     navController: NavHostController,
-    viewModel: EventViewModel
+    suggestionViewModel: SuggestionViewModel
 ) {
 
     var nombre by remember { mutableStateOf("") }
@@ -30,6 +30,8 @@ fun SuggestEventScreen(
     var fecha by remember { mutableStateOf("") }
     var locacion by remember { mutableStateOf("") }
     var capacidad by remember { mutableStateOf("") }
+    var showErrorMessage by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -211,6 +213,21 @@ fun SuggestEventScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
+        if (showErrorMessage) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer
+                )
+            ) {
+                Text(
+                    text = errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
         Spacer(
             modifier = Modifier.height(16.dp)
         )
@@ -219,20 +236,20 @@ fun SuggestEventScreen(
 
             onClick = {
 
-                viewModel.addSuggestion(
-
-                    nombre,
-
-                    descripcion,
-
-                    fecha,
-
-                    locacion,
-
-                    capacidad.toIntOrNull() ?: 0
+                suggestionViewModel.addSuggestion(
+                    title = nombre,
+                    description = descripcion,
+                    date = fecha,
+                    location = locacion,
+                    capacity = capacidad.toIntOrNull() ?: 0,
+                    onSuccess = {
+                        navController.popBackStack()
+                    },
+                    onError = { error ->
+                        errorMessage = error
+                        showErrorMessage = true
+                    }
                 )
-
-                navController.popBackStack()
             },
 
             colors = ButtonDefaults.buttonColors(

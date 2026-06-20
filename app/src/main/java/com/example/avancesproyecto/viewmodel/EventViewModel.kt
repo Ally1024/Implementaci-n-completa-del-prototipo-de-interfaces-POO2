@@ -8,7 +8,6 @@ import com.example.avancesproyecto.data.local.database.AppDatabase
 import com.example.avancesproyecto.data.remote.RetrofitClient
 import com.example.avancesproyecto.data.repository.EventRepository
 import com.example.avancesproyecto.model.Event
-import com.example.avancesproyecto.model.Suggestion
 import kotlinx.coroutines.launch
 import android.util.Log
 
@@ -222,84 +221,5 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
     fun getEventById(eventId: Int): Event? {
         return events.find { it.id == eventId }
     }
-
-
-    // =======================
-    // SUGERENCIAS
-    // =======================
-
-    private val _suggestions =
-        mutableStateListOf<Suggestion>()
-
-    val suggestions: List<Suggestion>
-        get() = _suggestions
-
-
-    // AGREGAR SUGERENCIA
-    fun addSuggestion(
-        title: String,
-        description: String,
-        date: String,
-        location: String,
-        capacity: Int
-    ) {
-
-        val suggestion = Suggestion(
-
-            id = (_suggestions.size + 1),
-
-            title = title,
-
-            description = description,
-
-            date = date,
-
-            location = location,
-
-            maxCapacity = capacity
-        )
-
-        _suggestions.add(suggestion)
-    }
-
-
-    // APROBAR
-    fun approveSuggestion(
-        suggestion: Suggestion
-    ) {
-
-        addEvent(
-
-            nombre = suggestion.title,
-
-            descripcion = suggestion.description,
-
-            fecha = suggestion.date,
-
-            locacion = suggestion.location,
-
-            capacidad = suggestion.maxCapacity
-        )
-
-        _suggestions.remove(suggestion)
-    }
-
-
-    // RECHAZAR
-    fun rejectSuggestion(
-        suggestion: Suggestion
-    ) {
-
-        _suggestions.remove(suggestion)
-    }
-
-
-    // LIMPIAR SUGERENCIAS
-    fun clearSuggestions() {
-
-        _suggestions.clear()
-    }
-
-
 
 }

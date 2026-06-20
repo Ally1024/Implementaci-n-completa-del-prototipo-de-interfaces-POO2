@@ -8,19 +8,23 @@ import com.example.avancesproyecto.data.local.dao.EventDao
 import com.example.avancesproyecto.data.local.dao.UserDao
 import com.example.avancesproyecto.data.local.entity.EventEntity
 import com.example.avancesproyecto.data.local.entity.UserEntity
+import com.example.avancesproyecto.data.local.entity.SuggestionEntity
+import com.example.avancesproyecto.data.local.dao.SuggestionDao
 
 @Database(
     entities = [
         EventEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        SuggestionEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun eventDao(): EventDao
     abstract fun userDao(): UserDao
+    abstract fun suggestionDao(): SuggestionDao
 
     companion object {
         @Volatile

@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.avancesproyecto.ui.theme.Screen.*
 import com.example.avancesproyecto.viewmodel.EventViewModel
+import com.example.avancesproyecto.viewmodel.SuggestionViewModel
 import com.example.avancesproyecto.viewmodel.UserViewModel
 
 @Composable
@@ -16,6 +17,8 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val viewModel: EventViewModel = viewModel()
+
+    val suggestionViewModel: SuggestionViewModel = viewModel()
 
     val userViewModel : UserViewModel = viewModel()
 
@@ -83,13 +86,14 @@ fun AppNavigation() {
         }
 
         // ADMIN PANEL
-        composable(Routes.ADMIN) {
+         composable(Routes.ADMIN) {
 
-            AdminPanelScreen(
-                navController = navController,
-                viewModel = viewModel
-            )
-        }
+             AdminPanelScreen(
+                 navController = navController,
+                 viewModel = viewModel,
+                 suggestionViewModel = suggestionViewModel
+             )
+         }
 
         // ADD EVENT (ADMIN)
         composable(Routes.ADD_EVENT) {
@@ -110,13 +114,13 @@ fun AppNavigation() {
         }
 
         // SUGGEST EVENT (ESTUDIANTE)
-        composable(Routes.SUGGEST_EVENT) {
+         composable(Routes.SUGGEST_EVENT) {
 
-            SuggestEventScreen(
-                navController = navController,
-                viewModel = viewModel
-            )
-        }
+             SuggestEventScreen(
+                 navController = navController,
+                 suggestionViewModel = suggestionViewModel
+             )
+         }
 
         // DETAIL
         composable(
