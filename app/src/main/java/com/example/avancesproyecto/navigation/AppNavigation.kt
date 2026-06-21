@@ -15,11 +15,8 @@ import com.example.avancesproyecto.viewmodel.UserViewModel
 fun AppNavigation() {
 
     val navController = rememberNavController()
-
     val viewModel: EventViewModel = viewModel()
-
     val suggestionViewModel: SuggestionViewModel = viewModel()
-
     val userViewModel : UserViewModel = viewModel()
 
     NavHost(
@@ -29,33 +26,19 @@ fun AppNavigation() {
 
         // LOGIN
         composable(Routes.LOGIN) {
-
             LoginScreen(
-
                 onLoginClick = { isAdmin ->
-
                     if (isAdmin) {
-
                         navController.navigate(Routes.ADMIN) {
-
-                            popUpTo(Routes.LOGIN) {
-                                inclusive = true
-                            }
+                            popUpTo(Routes.LOGIN) { inclusive = true }
                         }
-
                     } else {
-
                         navController.navigate(Routes.HOME) {
-
-                            popUpTo(Routes.LOGIN) {
-                                inclusive = true
-                            }
+                            popUpTo(Routes.LOGIN) { inclusive = true }
                         }
                     }
                 },
-
                 onRegisterClick = {
-
                     navController.navigate("register")
                 }
             )
@@ -63,13 +46,11 @@ fun AppNavigation() {
 
         // REGISTER
         composable("register") {
-
             RegisterScreen(
                 viewModel = userViewModel,
                 onRegisterClick = {
                     navController.popBackStack()
                 },
-
                 onBackToLogin = {
                     navController.popBackStack()
                 }
@@ -78,7 +59,6 @@ fun AppNavigation() {
 
         // HOME
         composable(Routes.HOME) {
-
             HomeScreen(
                 navController = navController,
                 viewModel = viewModel
@@ -86,18 +66,16 @@ fun AppNavigation() {
         }
 
         // ADMIN PANEL
-         composable(Routes.ADMIN) {
-
-             AdminPanelScreen(
-                 navController = navController,
-                 viewModel = viewModel,
-                 suggestionViewModel = suggestionViewModel
-             )
-         }
+        composable(Routes.ADMIN) {
+            AdminPanelScreen(
+                navController = navController,
+                viewModel = viewModel,
+                suggestionViewModel = suggestionViewModel
+            )
+        }
 
         // ADD EVENT (ADMIN)
         composable(Routes.ADD_EVENT) {
-
             AddEventScreen(
                 navController = navController,
                 viewModel = viewModel
@@ -106,7 +84,6 @@ fun AppNavigation() {
 
         // DELETE EVENT
         composable(Routes.DELETE_EVENT) {
-
             DeleteEventScreen(
                 viewModel = viewModel,
                 navController = navController
@@ -114,19 +91,17 @@ fun AppNavigation() {
         }
 
         // SUGGEST EVENT (ESTUDIANTE)
-         composable(Routes.SUGGEST_EVENT) {
-
-             SuggestEventScreen(
-                 navController = navController,
-                 suggestionViewModel = suggestionViewModel
-             )
-         }
+        composable(Routes.SUGGEST_EVENT) {
+            SuggestEventScreen(
+                navController = navController,
+                suggestionViewModel = suggestionViewModel
+            )
+        }
 
         // DETAIL
         composable(
             "${Routes.DETAIL}/{eventId}"
         ) { backStack: NavBackStackEntry ->
-
             val id = backStack.arguments
                 ?.getString("eventId")
                 ?.toInt() ?: 0
@@ -140,43 +115,38 @@ fun AppNavigation() {
 
         // REGISTERED EVENTS
         composable(Routes.REGISTERED) {
-
             RegisteredScreen(
                 viewModel = viewModel,
                 navController = navController
             )
         }
 
-        // INSCRIPCION
+        // INSCRIPCION (CAMBIO AQUÍ: Ahora envía el nombre del usuario logueado)
         composable(Routes.INSCRIPCION) {
-
+            val nombreUsuario = userViewModel.loggedUserName ?: "Usuario"
             InscripcionScreen(
-                navController = navController
+                navController = navController,
+                userName = nombreUsuario
             )
         }
 
+        // EDIT EVENT
         composable(
             "${Routes.EDIT_EVENT}/{eventId}"
         ) { backStack ->
-
-            val id =
-                backStack.arguments
-                    ?.getString("eventId")
-                    ?.toInt() ?: 0
+            val id = backStack.arguments
+                ?.getString("eventId")
+                ?.toInt() ?: 0
 
             EditEventScreen(
-
                 eventId = id,
-
                 navController = navController,
-
                 viewModel = viewModel
             )
         }
 
         // USERS MANAGEMENT
         composable(Routes.USERS_MANAGEMENT) {
-
             UsersManagementScreen(
                 viewModel = userViewModel,
                 onBackClick = {
@@ -185,4 +155,4 @@ fun AppNavigation() {
             )
         }
     }
-}
+}   

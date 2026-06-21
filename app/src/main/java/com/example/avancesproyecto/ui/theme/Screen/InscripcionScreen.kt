@@ -32,12 +32,17 @@ import com.example.avancesproyecto.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InscripcionScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    userName: String = "Usuario" // 1. Agregamos el nombre por defecto aquí
 ) {
 
     var cif by remember { mutableStateOf("") }
     var carrera by remember { mutableStateOf("") }
     var beneficio by remember { mutableStateOf("") }
+
+    // 2. Variable simulada para controlar si ya se inscribió (Evita doble registro)
+    var yaInscrito by remember { mutableStateOf(false) }
+
     val context = LocalContext.current
 
     Scaffold(
@@ -97,9 +102,19 @@ fun InscripcionScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // 3. CAMBIO: Añadido el saludo personalizado arriba del formulario
+                Text(
+                    text = "¡Hola, $userName!",
+                    fontSize = 22.sp,
+                    color = White,
+                    fontWeight = FontWeight.Medium
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = "Formulario de Inscripción",
-                    fontSize = 28.sp,
+                    fontSize = 26.sp,
                     color = White,
                     fontWeight = FontWeight.Bold
                 )
@@ -174,15 +189,27 @@ fun InscripcionScreen(
 
                         Button(
                             onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Inscripción realizada correctamente",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                // 4. CAMBIO: Validación antes de inscribir
+                                if (yaInscrito) {
+                                    Toast.makeText(
+                                        context,
+                                        "Error: Ya te encuentras inscrito en este evento.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    // Se marca como inscrito para bloquear futuros clics
+                                    yaInscrito = true
 
-                                navController.navigate(Routes.REGISTERED) {
-                                    popUpTo(Routes.HOME) { inclusive = false }
-                                    launchSingleTop = true
+                                    Toast.makeText(
+                                        context,
+                                        "Inscripción realizada correctamente",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+
+                                    navController.navigate(Routes.REGISTERED) {
+                                        popUpTo(Routes.HOME) { inclusive = false }
+                                        launchSingleTop = true
+                                    }
                                 }
                             },
                             modifier = Modifier
@@ -190,12 +217,12 @@ fun InscripcionScreen(
                                 .height(55.dp),
                             shape = RoundedCornerShape(50.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = VerdeOscuro,
+                                containerColor = if (yaInscrito) GrisClaro else VerdeOscuro, // Cambia color si se bloquea
                                 contentColor = White
                             )
                         ) {
                             Text(
-                                text = "Confirmar inscripción",
+                                text = if (yaInscrito) "Ya estás inscrito" else "Confirmar inscripción",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )

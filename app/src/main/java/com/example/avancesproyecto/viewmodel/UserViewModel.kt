@@ -1,7 +1,10 @@
 package com.example.avancesproyecto.viewmodel
 
 import android.app.Application
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.avancesproyecto.data.local.database.AppDatabase
@@ -25,6 +28,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     val users: List<User>
         get() = _users
 
+    // CAMBIO: Estado para guardar el nombre del usuario logueado en la sesión actual
+    var loggedUserName by mutableStateOf<String?>(null)
+        private set
+
     init {
         observeLocalUsers()
         refreshUsers()
@@ -47,6 +54,19 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 e.printStackTrace()
             }
         }
+    }
+
+    // CAMBIO: Función para simular el inicio de sesión y guardar el nombre en memoria
+    fun loginUser(cifOrName: String): User? {
+        val foundUser = _users.find {
+            it.cif.equals(cifOrName, ignoreCase = true) ||
+                    it.name.equals(cifOrName, ignoreCase = true)
+        }
+
+        if (foundUser != null && !foundUser.isBlocked) {
+            loggedUserName = foundUser.name
+        }
+        return foundUser
     }
 
     fun addUser(
