@@ -1,5 +1,6 @@
 package com.example.avancesproyecto.data.remote
 
+import retrofit2.Response // <-- Asegúrate de tener este import nuevo
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -12,8 +13,9 @@ interface UserApi {
     @GET("users")
     suspend fun getUsers(): List<UserDto>
 
+
     @POST("users")
-    suspend fun createUser(@Body user: UserDto): UserDto
+    suspend fun createUser(@Body user: UserDto): Response<UserDto>
 
     @DELETE("users/{id}")
     suspend fun deleteUser(@Path("id") id: Int)

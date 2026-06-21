@@ -32,6 +32,9 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
     var loggedUserName by mutableStateOf<String?>(null)
         private set
 
+    // ✨ NUEVO CAMBIO: Estado para almacenar y mostrar errores de duplicados en la pantalla de Registro
+    var registrationError by mutableStateOf<String?>(null)
+
     init {
         observeLocalUsers()
         refreshUsers()
@@ -69,11 +72,16 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return foundUser
     }
 
+    // 🛠️ MODIFICADO: Ahora maneja las respuestas de error del backend por duplicado
     fun addUser(
         name: String,
         cif: String,
-        userType: UserType = UserType.ESTUDIANTE
+        userType: UserType = UserType.ESTUDIANTE,
+        onSuccess: () -> Unit // Agregamos un callback para avisar a la pantalla que cierre si todo sale bien
     ) {
+        // Limpiamos errores anteriores antes de intentar registrar
+        registrationError = null
+
         val newUser = User(
             id = 0,
             name = name,
@@ -85,10 +93,21 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
-                userRepository.addUser(newUser)
-                refreshUsers()
+                // Llamamos al repositorio pasándole el usuario
+                val response = userRepository.addUser(newUser)
+
+                if (response.isSuccessful) {
+                    // ✅ Éxito total en el servidor
+                    refreshUsers()
+                    onSuccess() // Redirige al Login o cierra el formulario
+                } else {
+                    // ❌ El Backend nos regresó un error 400 (Duplicado)
+                    val errorMsg = response.errorBody()?.string() ?: "Error al registrar usuario"
+                    registrationError = errorMsg
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
+                registrationError = "Error de conexión: No se pudo conectar al servidor."
             }
         }
     }

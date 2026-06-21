@@ -5,6 +5,7 @@ import com.example.avancesproyecto.data.remote.UserApi
 import com.example.avancesproyecto.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import retrofit2.Response // <-- Importante este nuevo import
 
 class UserRepository(
     private val api: UserApi,
@@ -19,10 +20,19 @@ class UserRepository(
         dao.insertUsers(remoteUsers.map { it.toEntity() })
     }
 
-    suspend fun addUser(user: User) {
-        val createdUser = api.createUser(user.toDto())
-        dao.insertUser(createdUser.toEntity())
-        syncUsers()
+    // 🛠️ MODIFICADO: Ahora retorna un Response<UserDto> para que el ViewModel evalúe si hubo duplicados
+    suspend fun addUser(user: User): Response<com.example.avancesproyecto.data.remote.UserDto> {
+        val response = api.createUser(user.toDto())
+
+        // Solo si el servidor lo guardó con éxito en Supabase, lo agregamos a la BD local
+        if (response.isSuccessful) {
+            response.body()?.let { createdUser ->
+                dao.insertUser(createdUser.toEntity())
+                syncUsers()
+            }
+        }
+
+        return response
     }
 
     suspend fun deleteUser(userId: Int) {
