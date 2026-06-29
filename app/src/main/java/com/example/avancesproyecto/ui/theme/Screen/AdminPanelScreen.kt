@@ -132,7 +132,7 @@ fun AdminPanelScreen(
                 // ESTADISTICAS
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "📊 Estadísticas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(text = " Estadísticas", fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(text = "Eventos: $totalEvents")
                         Text(text = "Inscritos: $totalAttendees")
@@ -161,7 +161,7 @@ fun AdminPanelScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         if (event.isFeatured) {
-                            Text(text = "⭐ Evento Destacado", color = VerdeOscuro, fontWeight = FontWeight.Bold)
+                            Text(text = " Evento Destacado", color = VerdeOscuro, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(6.dp))
                         }
 
@@ -169,12 +169,12 @@ fun AdminPanelScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(event.description)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("📍 ${event.location}")
-                        Text("📅 ${event.date}")
+                        Text(" ${event.location}")
+                        Text(" ${event.date}")
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "👥 ${event.attendees}/${event.maxCapacity}", fontWeight = FontWeight.Bold)
+                        Text(text = "${event.attendees}/${event.maxCapacity}", fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = "📈 ${viewModel.eventOccupation(event)}% ocupado")
+                        Text(text = " ${viewModel.eventOccupation(event)}% ocupado")
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -186,7 +186,7 @@ fun AdminPanelScreen(
                                 onClick = { navController.navigate("${Routes.EDIT_EVENT}/${event.id}") },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                             ) {
-                                Text("✏️ Editar")
+                                Text("✏ Editar")
                             }
                         }
 
@@ -226,8 +226,8 @@ fun AdminPanelScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(suggestion.description)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("📍 ${suggestion.location}")
-                        Text("📅 ${suggestion.date}")
+                        Text(" ${suggestion.location}")
+                        Text(" ${suggestion.date}")
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Row {

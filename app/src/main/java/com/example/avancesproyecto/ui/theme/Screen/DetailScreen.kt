@@ -102,8 +102,8 @@ fun DetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("📅 ${event.date}")
-                    Text("📍 ${event.location}")
+                    Text(" ${event.date}")
+                    Text(" ${event.location}")
                 }
 
                 Text(
@@ -112,15 +112,15 @@ fun DetailScreen(
                 )
 
                 Text(
-                    text = if (isFull) "🔴 Evento lleno"
-                    else "🟢 Cupos disponibles",
+                    text = if (isFull) " Evento lleno"
+                    else " Cupos disponibles",
                     color = if (isFull)
                         MaterialTheme.colorScheme.error
                     else
                         VerdeOscuro
                 )
 
-                // 🌍 BOTÓN GOOGLE MAPS
+                //  BOTÓN GOOGLE MAPS
                 Button(
                     onClick = {
                         val uri = Uri.parse(
@@ -138,7 +138,7 @@ fun DetailScreen(
                     Text("Abrir en Google Maps")
                 }
 
-                // 🟢 BOTÓN INSCRIBIRSE
+                //  BOTÓN INSCRIBIRSE
                 Button(
                     onClick = {
                         if (!isFull) {

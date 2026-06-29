@@ -270,7 +270,7 @@ fun UserCard(
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
-                        text = if (user.isBlocked) "🔒 Bloqueado" else "✓ Activo",
+                        text = if (user.isBlocked) " Bloqueado" else " Activo",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onPrimary

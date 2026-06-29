@@ -58,7 +58,7 @@ fun RegisterScreen(
     var passwordError by remember { mutableStateOf("") }
     var confirmPasswordError by remember { mutableStateOf("") }
 
-    // ✨ NUEVO: Limpiar el error de duplicados del ViewModel cada vez que entramos a esta pantalla
+    // NUEVO: Limpiar el error de duplicados del ViewModel cada vez que entramos a esta pantalla
     LaunchedEffect(Unit) {
         viewModel?.registrationError = null
     }
@@ -124,7 +124,7 @@ fun RegisterScreen(
                 Column(modifier = Modifier.padding(22.dp)) {
 
                     // =========================================================================
-                    // ✨ NUEVO: CUADRO DE AVISO SI EL BACKEND DEVUELVE DUPLICADO O ERROR
+                    //  NUEVO: CUADRO DE AVISO SI EL BACKEND DEVUELVE DUPLICADO O ERROR
                     // =========================================================================
                     viewModel?.registrationError?.let { msg ->
                         Card(

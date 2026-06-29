@@ -21,7 +21,7 @@ fun RegisteredScreen(
     navController: NavHostController
 ) {
 
-    // 🔥 SOLO eventos con asistentes (simula "inscritos")
+    //  SOLO eventos con asistentes (simula "inscritos")
     val myEvents = viewModel.events.filter {
         it.attendees > 0
     }
@@ -95,14 +95,14 @@ fun RegisteredScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text("📅 ${event.date}")
-                                Text("📍 ${event.location}")
+                                Text(" ${event.date}")
+                                Text(" ${event.location}")
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = "👥 ${event.attendees}/${event.maxCapacity}",
+                                text = " ${event.attendees}/${event.maxCapacity}",
                                 color = VerdeOscuro
                             )
 
@@ -110,7 +110,7 @@ fun RegisteredScreen(
 
                             Button(
                                 onClick = {
-                                    // 🔥 ya no existe unregister, así que usamos joinEvent inverso simple
+                                    //  ya no existe unregister, así que usamos joinEvent inverso simple
                                     // o puedes eliminar lógica si quieres mantener simple
                                 },
                                 modifier = Modifier.align(Alignment.End),

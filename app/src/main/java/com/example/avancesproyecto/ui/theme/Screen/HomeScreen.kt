@@ -104,23 +104,23 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("📅 ${event.date}")
-                            Text("📍 ${event.location}")
+                            Text(" ${event.date}")
+                            Text(" ${event.location}")
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "👥 ${event.attendees}/${event.maxCapacity}",
+                            text = " ${event.attendees}/${event.maxCapacity}",
                             fontWeight = FontWeight.Bold,
                             color = VerdeOscuro
                         )
 
                         Text(
                             text = if (isFull)
-                                "🔴 Evento lleno"
+                                " Evento lleno"
                             else
-                                "🟢 Cupos disponibles",
+                                " Cupos disponibles",
                             fontSize = 12.sp
                         )
 
