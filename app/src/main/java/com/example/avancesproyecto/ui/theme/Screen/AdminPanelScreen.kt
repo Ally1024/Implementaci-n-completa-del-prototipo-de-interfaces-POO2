@@ -177,6 +177,7 @@ fun AdminPanelScreen(
                         Text(text = " ${viewModel.eventOccupation(event)}% ocupado")
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        // Fila de botones de control del evento
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(onClick = { viewModel.toggleFeatured(event.id) }) { Text("⭐") }
                             Button(onClick = { viewModel.toggleEventStatus(event.id) }) {
@@ -190,9 +191,20 @@ fun AdminPanelScreen(
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 🆕 BOTÓN EXTRA DE ASISTENCIA UBICADO CORRECTAMENTE DENTRO DEL EVENTO
+                        Button(
+                            onClick = { navController.navigate("check_in_screen/${event.id}") },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = VerdeOscuro)
+                        ) {
+                            Text("📋 Control de Asistencia")
+                        }
+
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = if (event.isOpen) "🟢 Inscripciones abiertas" else "🔴 Evento cerrado",
+                            text = if (event.isOpen) " Inscripciones abiertas" else " Evento cerrado",
                             color = if (event.isOpen) VerdeOscuro else MaterialTheme.colorScheme.error
                         )
                     }

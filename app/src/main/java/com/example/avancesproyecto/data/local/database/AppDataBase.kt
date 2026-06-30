@@ -4,22 +4,25 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.avancesproyecto.data.local.dao.AsistenciaDao
 import com.example.avancesproyecto.data.local.dao.EventDao
 import com.example.avancesproyecto.data.local.dao.UserDao
+import com.example.avancesproyecto.data.local.dao.SuggestionDao
+import com.example.avancesproyecto.data.local.entity.AsistenciaEntity
 import com.example.avancesproyecto.data.local.entity.EventEntity
 import com.example.avancesproyecto.data.local.entity.UserEntity
 import com.example.avancesproyecto.data.local.entity.SuggestionEntity
-import com.example.avancesproyecto.data.local.dao.SuggestionDao
 
 // Defino la configuración de mi base de datos local SQLite usando Room
 @Database(
-    // Registro todas las tablas (entidades) que van a existir de forma interna en el celular
+    // Registro todas las tablas (entidades) incluyendo la nueva de asistencia
     entities = [
         EventEntity::class,
         UserEntity::class,
-        SuggestionEntity::class
+        SuggestionEntity::class,
+        AsistenciaEntity::class // 👈 Agregada correctamente aquí
     ],
-    version = 3, // Incremento la versión si hago cambios en la estructura de las tablas
+    version = 4, // 👈 Incrementamos de 3 a 4 porque agregamos una nueva tabla
     exportSchema = false // No exporto el esquema a un archivo JSON para mantener el proyecto más ligero
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -28,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun eventDao(): EventDao
     abstract fun userDao(): UserDao
     abstract fun suggestionDao(): SuggestionDao
+    abstract fun asistenciaDao(): AsistenciaDao // 👈 Agregado el acceso al DAO de asistencia
 
     companion object {
         // @Volatile asegura que el valor de INSTANCE sea siempre visible y actualizado para todos los hilos del cel

@@ -1,11 +1,13 @@
 package com.example.avancesproyecto.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.avancesproyecto.data.local.database.AppDatabase
 import com.example.avancesproyecto.ui.theme.Screen.*
 import com.example.avancesproyecto.viewmodel.EventViewModel
 import com.example.avancesproyecto.viewmodel.SuggestionViewModel
@@ -121,7 +123,7 @@ fun AppNavigation() {
             )
         }
 
-        // INSCRIPCION (CAMBIO AQUÍ: Ahora envía el nombre del usuario logueado)
+        // INSCRIPCION
         composable(Routes.INSCRIPCION) {
             val nombreUsuario = userViewModel.loggedUserName ?: "Usuario"
             InscripcionScreen(
@@ -154,5 +156,22 @@ fun AppNavigation() {
                 }
             )
         }
+
+        // CONTROL DE ASISTENCIA POR EVENTO
+        composable("check_in_screen/{eventId}") { backStack ->
+            val context = LocalContext.current
+
+            // Obtenemos de forma segura la BD y el DAO para pasárselos a la interfaz gráfica
+            val database = AppDatabase.getDatabase(context)
+            val asistenciaDao = database.asistenciaDao()
+
+            // Capturamos el ID del evento que enviamos en la ruta
+            val id = backStack.arguments?.getString("eventId")?.toInt() ?: 0
+
+            CheckInScreen(
+                asistenciaDao = asistenciaDao,
+                eventoId = id
+            )
+        }
     }
-}   
+}
