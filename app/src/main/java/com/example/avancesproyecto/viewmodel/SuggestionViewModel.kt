@@ -15,49 +15,44 @@ class SuggestionViewModel(application: Application) : AndroidViewModel(applicati
 
     private val database = AppDatabase.getDatabase(application)
 
+    // Inicializacion de repositorios acoplados a fuentes de datos locales y remotas
     private val suggestionRepository = SuggestionRepository(
         api = RetrofitClient.suggestionApi,
         dao = database.suggestionDao()
     )
 
-    /*
-       Se usa para actualizar Room de eventos cuando
-       un administrador aprueba una sugerencia.
-    */
     private val eventRepository = EventRepository(
         api = RetrofitClient.eventApi,
         dao = database.eventDao()
     )
 
+    // Estado interno mutable exclusivo para control de recomposicion en Jetpack Compose
     private val _suggestions = mutableStateListOf<Suggestion>()
-
-    val suggestions: List<Suggestion>
-        get() = _suggestions
+    val suggestions: List<Suggestion> get() = _suggestions
 
     init {
         observeLocalSuggestions()
         refreshSuggestions()
     }
 
+    // Suscripcion reactiva al flujo de datos (Flow) expuesto por el DAO local de Room
     private fun observeLocalSuggestions() {
         viewModelScope.launch {
-            suggestionRepository.suggestions.collect { suggestionList ->
+            suggestionRepository.suggestions.collect { list ->
                 _suggestions.clear()
-                _suggestions.addAll(suggestionList)
+                _suggestions.addAll(list)
             }
         }
     }
 
+    // Fuerza la sincronizacion de la API remota hacia la base de datos local
     fun refreshSuggestions() {
         viewModelScope.launch {
-            try {
-                suggestionRepository.syncSuggestions()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            suggestionRepository.syncSuggestions()
         }
     }
 
+    // Registra una nueva sugerencia despachandola al repositorio mediante corrutinas
     fun addSuggestion(
         title: String,
         description: String,
@@ -67,27 +62,25 @@ class SuggestionViewModel(application: Application) : AndroidViewModel(applicati
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) {
-        val suggestion = Suggestion(
-            id = 0,
-            title = title,
-            description = description,
-            date = date,
-            location = location,
-            maxCapacity = capacity
-        )
-
         viewModelScope.launch {
             try {
-                suggestionRepository.addSuggestion(suggestion)
-                refreshSuggestions()
+                val newSuggestion = Suggestion(
+                    id = 0, // Identificador unico autoincremental gestionado por el backend
+                    title = title,
+                    description = description,
+                    date = date,
+                    location = location,
+                    maxCapacity = capacity
+                )
+                suggestionRepository.addSuggestion(newSuggestion)
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
-                onError("No se pudo enviar la sugerencia.")
+                onError("Error al enviar sugerencia: ${e.message}")
             }
         }
     }
 
+    // Transfiere una sugerencia aprobada al modulo de eventos y actualiza los repositorios implicados
     fun approveSuggestion(
         suggestionId: Int,
         onSuccess: () -> Unit = {},
@@ -97,22 +90,18 @@ class SuggestionViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 suggestionRepository.approveSuggestion(suggestionId)
 
-                /*
-                   El backend ya creó el Event.
-                   Sincronizamos Room para que EventViewModel
-                   detecte el nuevo evento automáticamente.
-                */
+                // Sincronizacion transversal de las entidades afectadas
                 eventRepository.syncEvents()
+                suggestionRepository.syncSuggestions()
 
-                refreshSuggestions()
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
-                onError("No se pudo aprobar la sugerencia.")
+                onError("Error al aprobar sugerencia")
             }
         }
     }
 
+    // Remueve una propuesta rechazada del origen de datos local y remoto
     fun rejectSuggestion(
         suggestionId: Int,
         onSuccess: () -> Unit = {},
@@ -121,11 +110,11 @@ class SuggestionViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             try {
                 suggestionRepository.deleteSuggestion(suggestionId)
-                refreshSuggestions()
+                suggestionRepository.syncSuggestions()
+
                 onSuccess()
             } catch (e: Exception) {
-                e.printStackTrace()
-                onError("No se pudo rechazar la sugerencia.")
+                onError("Error al rechazar sugerencia")
             }
         }
     }

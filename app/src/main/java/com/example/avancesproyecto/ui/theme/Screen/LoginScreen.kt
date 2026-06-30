@@ -38,12 +38,13 @@ import com.example.avancesproyecto.viewmodel.UserViewModel
 
 @Composable
 fun LoginScreen(
-    // CAMBIO: Añadimos el viewModel como parámetro por defecto
+    // Asignación por defecto del ViewModel para desacoplamiento de arquitectura
     viewModel: UserViewModel = viewModel(),
     onLoginClick: (Boolean) -> Unit = {},
     onRegisterClick: () -> Unit = {}
 ) {
 
+    // Estados mutables para el control del formulario y visibilidad de contraseña
     var cif by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -70,6 +71,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // Contenedor circular para el logo institucional de la universidad
             Box(
                 modifier = Modifier
                     .size(160.dp)
@@ -124,11 +126,15 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
+                    // ==========================================
+                    // CAMPO: CIF (IDENTIFICACIÓN)
+                    // ==========================================
                     OutlinedTextField(
                         value = cif,
-                        onValueChange = {
-                            if (it.length <= 8 && it.all { char -> char.isDigit() }) {
-                                cif = it
+                        onValueChange = { input ->
+                            // Regla de negocio: Máximo 8 caracteres puramente numéricos
+                            if (input.length <= 8 && input.all { char -> char.isDigit() }) {
+                                cif = input
                             }
                             cifError = ""
                         },
@@ -162,6 +168,9 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
+                    // ==========================================
+                    // CAMPO: CONTRASEÑA
+                    // ==========================================
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -208,15 +217,19 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    // ==========================================
+                    // BOTÓN: INGRESO Y LOGUEO DE CREDENCIALES
+                    // ==========================================
                     Button(
                         onClick = {
+                            // Estructura de validación secuencial antes de llamadas de red/base de datos
                             when {
                                 cif.isBlank() -> { cifError = "Ingrese su CIF" }
                                 cif.length != 8 -> { cifError = "El CIF debe tener 8 números" }
                                 password.isBlank() -> { passwordError = "Ingrese su contraseña" }
                                 password.length < 6 -> { passwordError = "La contraseña debe tener mínimo 6 caracteres" }
                                 else -> {
-                                    // CAMBIO: Si no es admin, validamos que el usuario exista localmente
+                                    // Validación del rol y verificación de estado en persistencia local
                                     if (!isAdmin) {
                                         val user = viewModel.loginUser(cif)
                                         if (user == null) {
@@ -227,7 +240,7 @@ fun LoginScreen(
                                             onLoginClick(false)
                                         }
                                     } else {
-                                        // Es admin, pasa directo por ahora
+                                        // Acceso administrativo directo temporal
                                         onLoginClick(true)
                                     }
                                 }
@@ -260,6 +273,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Selector de roles institucionales (Estudiante vs Administrador)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
@@ -289,6 +303,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Navegación hacia la pantalla de registro
                     TextButton(
                         onClick = { onRegisterClick() },
                         modifier = Modifier.align(Alignment.CenterHorizontally)

@@ -45,6 +45,7 @@ fun RegisterScreen(
     onBackToLogin: () -> Unit = {}
 ) {
 
+    // Estados mutables para campos de entrada y control de visibilidad
     var nombre by rememberSaveable { mutableStateOf("") }
     var cif by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -53,12 +54,13 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // Estados mutables independientes para el manejo de errores en el formulario
     var nombreError by remember { mutableStateOf("") }
     var cifError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
     var confirmPasswordError by remember { mutableStateOf("") }
 
-    // NUEVO: Limpiar el error de duplicados del ViewModel cada vez que entramos a esta pantalla
+    // Limpieza automatica del error persistente de duplicados del ViewModel al entrar a la pantalla
     LaunchedEffect(Unit) {
         viewModel?.registrationError = null
     }
@@ -81,6 +83,7 @@ fun RegisterScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
+            // Marco circular contenedor de la identidad institucional
             Box(
                 modifier = Modifier
                     .size(140.dp)
@@ -123,9 +126,9 @@ fun RegisterScreen(
             ) {
                 Column(modifier = Modifier.padding(22.dp)) {
 
-                    // =========================================================================
-                    //  NUEVO: CUADRO DE AVISO SI EL BACKEND DEVUELVE DUPLICADO O ERROR
-                    // =========================================================================
+                    // ==========================================
+                    // NOTIFICACION: ERROR EN PERSISTENCIA / DUPLICADO
+                    // ==========================================
                     viewModel?.registrationError?.let { msg ->
                         Card(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -143,13 +146,15 @@ fun RegisterScreen(
                         }
                     }
 
-                    // NOMBRE COMPLETO
+                    // ==========================================
+                    // CAMPO: NOMBRE COMPLETO
+                    // ==========================================
                     OutlinedTextField(
                         value = nombre,
                         onValueChange = {
                             nombre = it
                             nombreError = ""
-                            viewModel?.registrationError = null // Limpia error general al escribir
+                            viewModel?.registrationError = null // Limpieza del error general de registro en modificacion
                         },
                         label = { Text("Nombre completo") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = VerdeOscuro) },
@@ -169,15 +174,18 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // CIF
+                    // ==========================================
+                    // CAMPO: CIF (IDENTIFICACION MATRICULA)
+                    // ==========================================
                     OutlinedTextField(
                         value = cif,
-                        onValueChange = {
-                            if (it.length <= 8 && it.all { char -> char.isDigit() }) {
-                                cif = it
+                        onValueChange = { input ->
+                            // Validacion local empirica: maximo 8 caracteres enteramente numericos
+                            if (input.length <= 8 && input.all { char -> char.isDigit() }) {
+                                cif = input
                             }
                             cifError = ""
-                            viewModel?.registrationError = null // Limpia error general al escribir
+                            viewModel?.registrationError = null
                         },
                         label = { Text("CIF") },
                         leadingIcon = { Icon(Icons.Default.Badge, contentDescription = null, tint = VerdeOscuro) },
@@ -198,7 +206,9 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // CONTRASEÑA
+                    // ==========================================
+                    // CAMPO: CONTRASEÑA BASE
+                    // ==========================================
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -233,7 +243,9 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // CONFIRMAR CONTRASEÑA
+                    // ==========================================
+                    // CAMPO: CONFIRMAR CONTRASEÑA
+                    // ==========================================
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = {
@@ -268,9 +280,12 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // BOTÓN REGISTRARSE
+                    // ==========================================
+                    // BOTON: REGISTRARSE Y PROCESAR SOLICITUD
+                    // ==========================================
                     Button(
                         onClick = {
+                            // Validaciones encadenadas de logica de negocio en el cliente
                             when {
                                 nombre.isBlank() -> { nombreError = "Ingrese su nombre" }
                                 cif.isBlank() -> { cifError = "Ingrese su CIF" }
@@ -279,13 +294,13 @@ fun RegisterScreen(
                                 password.length < 6 -> { passwordError = "La contraseña debe tener mínimo 6 caracteres" }
                                 confirmPassword != password -> { confirmPasswordError = "Las contraseñas no coinciden" }
                                 else -> {
-                                    // 🛠️ MODIFICADO: Pasamos el lambda onSuccess de la función addUser modificada
+                                    // Solicitud asincrona al backend delegada mediante callback estructurado onSuccess
                                     viewModel?.addUser(
                                         name = nombre,
                                         cif = cif,
                                         userType = UserType.ESTUDIANTE,
                                         onSuccess = {
-                                            // Solo cambia de pantalla si el backend dice que todo estuvo bien (200 OK)
+                                            // Redireccion controlada condicional al recibir confirmacion exitosa del ViewModel
                                             onRegisterClick()
                                         }
                                     )
@@ -301,6 +316,7 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Retorno explicito al inicio de sesion
                     TextButton(
                         onClick = { onBackToLogin() },
                         modifier = Modifier.align(Alignment.CenterHorizontally)

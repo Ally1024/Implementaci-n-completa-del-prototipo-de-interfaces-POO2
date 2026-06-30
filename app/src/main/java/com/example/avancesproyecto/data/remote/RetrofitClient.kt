@@ -39,7 +39,7 @@ object RetrofitClient {
         retrofit.create(EventApi::class.java)
     }
 
-    // Instancia perezosa para consumir los endpoints de Usuarios (Login/Registro/Validación de CIF)
+    // Instancia para consumir los endpoints de Usuarios (Login/Registro/Validación de CIF)
     val userApi: UserApi by lazy {
         retrofit.create(UserApi::class.java)
     }

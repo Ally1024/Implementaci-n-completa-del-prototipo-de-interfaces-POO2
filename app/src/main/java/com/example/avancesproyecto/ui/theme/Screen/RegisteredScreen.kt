@@ -21,9 +21,9 @@ fun RegisteredScreen(
     navController: NavHostController
 ) {
 
-    //  SOLO eventos con asistentes (simula "inscritos")
-    val myEvents = viewModel.events.filter {
-        it.attendees > 0
+    // Filtrado local preventivo para renderizar unicamente eventos que registran participacion activa
+    val myEvents = viewModel.events.filter { event ->
+        event.attendees > 0
     }
 
     Scaffold(
@@ -46,8 +46,9 @@ fun RegisteredScreen(
         }
     ) { padding ->
 
+        // Evaluacion del estado de la coleccion para el renderizado condicional de la UI
         if (myEvents.isEmpty()) {
-
+            // Estado vacio (Empty State) estructurado de forma limpia sin caracteres especiales
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,7 +62,7 @@ fun RegisteredScreen(
             }
 
         } else {
-
+            // Renderizado optimizado mediante LazyColumn para listas con scroll eficiente
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -70,7 +71,7 @@ fun RegisteredScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
 
-                items(myEvents) { event ->
+                items(myEvents, key = { it.id }) { event ->
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -95,23 +96,25 @@ fun RegisteredScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Text(" ${event.date}")
-                                Text(" ${event.location}")
+                                Text("Fecha: ${event.date}")
+                                Text("Lugar: ${event.location}")
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = " ${event.attendees}/${event.maxCapacity}",
+                                text = "Asistentes: ${event.attendees} / ${event.maxCapacity}",
                                 color = VerdeOscuro
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
 
+                            // ==========================================
+                            // CONTROL DE CANCELACION (PROCESO EN DESARROLLO)
+                            // ==========================================
                             Button(
                                 onClick = {
-                                    //  ya no existe unregister, así que usamos joinEvent inverso simple
-                                    // o puedes eliminar lógica si quieres mantener simple
+                                    // Espacio reservado para logica de desinscripcion local/remota en futuras iteraciones
                                 },
                                 modifier = Modifier.align(Alignment.End),
                                 colors = ButtonDefaults.buttonColors(

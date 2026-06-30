@@ -193,9 +193,9 @@ fun AdminPanelScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // 🆕 BOTÓN EXTRA DE ASISTENCIA UBICADO CORRECTAMENTE DENTRO DEL EVENTO
+                        // 📋 BOTÓN DE ASISTENCIA GLOBAL (CORREGIDO)
                         Button(
-                            onClick = { navController.navigate("check_in_screen/${event.id}") },
+                            onClick = { navController.navigate("check_in_screen") },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = VerdeOscuro)
                         ) {

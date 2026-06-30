@@ -16,20 +16,24 @@ import com.example.avancesproyecto.viewmodel.UserViewModel
 @Composable
 fun AppNavigation() {
 
+    // Inicializo el controlador central de navegacion de Jetpack Compose
     val navController = rememberNavController()
-    val viewModel: EventViewModel = viewModel()
+
+    // Instancio los ViewModels globales para retener el estado de la aplicacion en los cambios de pantalla
+    val eventViewModel: EventViewModel = viewModel()
     val suggestionViewModel: SuggestionViewModel = viewModel()
-    val userViewModel : UserViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
 
     NavHost(
         navController = navController,
         startDestination = Routes.LOGIN
     ) {
 
-        // LOGIN
+        // Pantalla de autenticacion inicial
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = { isAdmin ->
+                    // Redireccion condicional basada en el rol del usuario autenticado
                     if (isAdmin) {
                         navController.navigate(Routes.ADMIN) {
                             popUpTo(Routes.LOGIN) { inclusive = true }
@@ -46,7 +50,7 @@ fun AppNavigation() {
             )
         }
 
-        // REGISTER
+        // Pantalla de registro de nuevas cuentas de estudiante
         composable("register") {
             RegisterScreen(
                 viewModel = userViewModel,
@@ -59,40 +63,40 @@ fun AppNavigation() {
             )
         }
 
-        // HOME
+        // Panel principal o Home para la vista del estudiante
         composable(Routes.HOME) {
             HomeScreen(
                 navController = navController,
-                viewModel = viewModel
+                viewModel = eventViewModel
             )
         }
 
-        // ADMIN PANEL
+        // Panel de control central para los administradores
         composable(Routes.ADMIN) {
             AdminPanelScreen(
                 navController = navController,
-                viewModel = viewModel,
+                viewModel = eventViewModel,
                 suggestionViewModel = suggestionViewModel
             )
         }
 
-        // ADD EVENT (ADMIN)
+        // Pantalla para la creacion de nuevos eventos por parte del administrador
         composable(Routes.ADD_EVENT) {
             AddEventScreen(
                 navController = navController,
-                viewModel = viewModel
+                viewModel = eventViewModel
             )
         }
 
-        // DELETE EVENT
+        // Pantalla para la eliminacion masiva o selectiva de eventos
         composable(Routes.DELETE_EVENT) {
             DeleteEventScreen(
-                viewModel = viewModel,
+                viewModel = eventViewModel,
                 navController = navController
             )
         }
 
-        // SUGGEST EVENT (ESTUDIANTE)
+        // Pantalla para que los estudiantes envien propuestas de eventos ecologicos
         composable(Routes.SUGGEST_EVENT) {
             SuggestEventScreen(
                 navController = navController,
@@ -100,42 +104,42 @@ fun AppNavigation() {
             )
         }
 
-        // DETAIL
-        composable(
-            "${Routes.DETAIL}/{eventId}"
-        ) { backStack: NavBackStackEntry ->
+        // Pantalla de detalle de un evento que extrae el ID desde los argumentos de la ruta
+        composable("${Routes.DETAIL}/{eventId}") { backStack ->
             val id = backStack.arguments
                 ?.getString("eventId")
                 ?.toInt() ?: 0
 
             DetailScreen(
                 id = id,
-                viewModel = viewModel,
+                viewModel = eventViewModel,
                 navController = navController
             )
         }
 
-        // REGISTERED EVENTS
+        // Pantalla para visualizar los eventos a los que se ha inscrito el usuario actual
         composable(Routes.REGISTERED) {
             RegisteredScreen(
-                viewModel = viewModel,
+                viewModel = eventViewModel,
                 navController = navController
             )
         }
 
-        // INSCRIPCION
-        composable(Routes.INSCRIPCION) {
-            val nombreUsuario = userViewModel.loggedUserName ?: "Usuario"
+        // Formulario de inscripcion parametrizado con el ID del evento seleccionado
+        composable("${Routes.INSCRIPCION}/{eventId}") { backStack ->
+            val id = backStack.arguments
+                ?.getString("eventId")
+                ?.toInt() ?: 0
+
             InscripcionScreen(
                 navController = navController,
-                userName = nombreUsuario
+                viewModel = eventViewModel,
+                eventId = id
             )
         }
 
-        // EDIT EVENT
-        composable(
-            "${Routes.EDIT_EVENT}/{eventId}"
-        ) { backStack ->
+        // Pantalla de edicion de eventos para administradores guiada por el ID del evento
+        composable("${Routes.EDIT_EVENT}/{eventId}") { backStack ->
             val id = backStack.arguments
                 ?.getString("eventId")
                 ?.toInt() ?: 0
@@ -143,11 +147,11 @@ fun AppNavigation() {
             EditEventScreen(
                 eventId = id,
                 navController = navController,
-                viewModel = viewModel
+                viewModel = eventViewModel
             )
         }
 
-        // USERS MANAGEMENT
+        // Pantalla para la gestion y baneo/bloqueo de usuarios del sistema
         composable(Routes.USERS_MANAGEMENT) {
             UsersManagementScreen(
                 viewModel = userViewModel,
@@ -157,20 +161,19 @@ fun AppNavigation() {
             )
         }
 
-        // CONTROL DE ASISTENCIA POR EVENTO
-        composable("check_in_screen/{eventId}") { backStack ->
+        // Pantalla de control de asistencia fisica (Check-In) mediante lectura de persistencia local
+        composable("check_in_screen") {
             val context = LocalContext.current
 
-            // Obtenemos de forma segura la BD y el DAO para pasárselos a la interfaz gráfica
+            // Instanciacion directa de DAOs desde el Singleton de Room para la pantalla de control
             val database = AppDatabase.getDatabase(context)
             val asistenciaDao = database.asistenciaDao()
-
-            // Capturamos el ID del evento que enviamos en la ruta
-            val id = backStack.arguments?.getString("eventId")?.toInt() ?: 0
+            val eventDao = database.eventDao()
 
             CheckInScreen(
                 asistenciaDao = asistenciaDao,
-                eventoId = id
+                eventDao = eventDao,
+                navController = navController
             )
         }
     }

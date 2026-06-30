@@ -2,6 +2,7 @@ package com.example.avancesproyecto.ui.theme.Screen
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,10 +24,11 @@ fun DetailScreen(
     navController: NavHostController
 ) {
 
+    // Búsqueda del evento en la lista del ViewModel según el ID recibido por parámetro
     val event = viewModel.events.find { it.id == id }
 
     if (event == null) {
-
+        // Interfaz de error si por alguna razón el evento no existe en el repositorio local
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -46,7 +48,6 @@ fun DetailScreen(
                 )
             }
         ) { padding ->
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -58,7 +59,6 @@ fun DetailScreen(
         }
 
     } else {
-
         val context = LocalContext.current
         val isFull = event.attendees >= event.maxCapacity
 
@@ -102,33 +102,40 @@ fun DetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(" ${event.date}")
-                    Text(" ${event.location}")
+                    Text("Fecha: ${event.date}")
+                    Text("Lugar: ${event.location}")
                 }
 
+                // Información de aforo limpia de glifos
                 Text(
-                    text = "👥 ${event.attendees}/${event.maxCapacity}",
+                    text = "Asistentes: ${event.attendees} / ${event.maxCapacity}",
                     color = VerdeOscuro
                 )
 
                 Text(
-                    text = if (isFull) " Evento lleno"
-                    else " Cupos disponibles",
-                    color = if (isFull)
-                        MaterialTheme.colorScheme.error
-                    else
-                        VerdeOscuro
+                    text = if (isFull) "Evento lleno" else "Cupos disponibles",
+                    color = if (isFull) MaterialTheme.colorScheme.error else VerdeOscuro
                 )
 
-                //  BOTÓN GOOGLE MAPS
+                // ==========================================
+                // BOTÓN: INTEGRACIÓN CON GOOGLE MAPS
+                // ==========================================
                 Button(
                     onClick = {
-                        val uri = Uri.parse(
-                            "https://www.google.com/maps/search/?api=1&query=${event.location}"
-                        )
-
-                        val intent = Intent(Intent.ACTION_VIEW, uri)
-                        context.startActivity(intent)
+                        runCatching {
+                            // CORREGIDO: Sintaxis de Intent de geolocalización por query de texto
+                            val mapUri = Uri.parse("geo:0,0?q=${Uri.encode(event.location)}")
+                            val intent = Intent(Intent.ACTION_VIEW, mapUri).apply {
+                                // Forzamos a que intente abrir la app nativa de mapas si está disponible
+                                setPackage("com.google.android.apps.maps")
+                            }
+                            context.startActivity(intent)
+                        }.onFailure {
+                            // Si el dispositivo no tiene Google Maps instalado, lanzamos un intent genérico de mapas web
+                            val webMapUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(event.location)}")
+                            val webIntent = Intent(Intent.ACTION_VIEW, webMapUri)
+                            context.startActivity(webIntent)
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -138,25 +145,24 @@ fun DetailScreen(
                     Text("Abrir en Google Maps")
                 }
 
-                //  BOTÓN INSCRIBIRSE
+                // ==========================================
+                // BOTÓN: CONTROL DE INSCRIPCIÓN
+                // ==========================================
                 Button(
                     onClick = {
                         if (!isFull) {
                             viewModel.joinEvent(event.id)
+                            Toast.makeText(context, "Inscripción procesada con éxito", Toast.LENGTH_SHORT).show()
                         }
                     },
                     enabled = !isFull,
-                    modifier = Modifier.align(Alignment.End),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isFull)
-                            MaterialTheme.colorScheme.error
-                        else
-                            VerdeOscuro
+                        containerColor = if (isFull) MaterialTheme.colorScheme.error else VerdeOscuro
                     )
                 ) {
                     Text(
-                        if (isFull) "Completo"
-                        else "Inscribirse"
+                        text = if (isFull) "Completo" else "Inscribirse"
                     )
                 }
             }

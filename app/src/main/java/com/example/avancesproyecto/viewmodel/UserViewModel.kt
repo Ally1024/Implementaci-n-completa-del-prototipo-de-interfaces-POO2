@@ -23,16 +23,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         dao = database.userDao()
     )
 
+    // Estado interno mutable optimizado para el manejo de colecciones observables en Compose
     private val _users = mutableStateListOf<User>()
+    val users: List<User> get() = _users
 
-    val users: List<User>
-        get() = _users
-
-    // CAMBIO: Estado para guardar el nombre del usuario logueado en la sesión actual
+    // Estado observable para realizar el seguimiento del usuario logueado en la sesion activa
     var loggedUserName by mutableStateOf<String?>(null)
         private set
 
-    // ✨ NUEVO CAMBIO: Estado para almacenar y mostrar errores de duplicados en la pantalla de Registro
+    // Estado para capturar y renderizar excepciones o conflictos por duplicado desde el backend
     var registrationError by mutableStateOf<String?>(null)
 
     init {
@@ -40,6 +39,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         refreshUsers()
     }
 
+    // Suscripcion reactiva al flujo de datos local expuesto por Room
     private fun observeLocalUsers() {
         viewModelScope.launch {
             userRepository.users.collect { userList ->
@@ -49,6 +49,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Sincroniza la coleccion local mediante peticiones directas a la API REST
     fun refreshUsers() {
         viewModelScope.launch {
             try {
@@ -59,11 +60,11 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // CAMBIO: Función para simular el inicio de sesión y guardar el nombre en memoria
+    // Valida las credenciales en memoria local y asigna el identificador de sesion si procede
     fun loginUser(cifOrName: String): User? {
-        val foundUser = _users.find {
-            it.cif.equals(cifOrName, ignoreCase = true) ||
-                    it.name.equals(cifOrName, ignoreCase = true)
+        val foundUser = _users.find { user ->
+            user.cif.equals(cifOrName, ignoreCase = true) ||
+                    user.name.equals(cifOrName, ignoreCase = true)
         }
 
         if (foundUser != null && !foundUser.isBlocked) {
@@ -72,14 +73,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return foundUser
     }
 
-    // 🛠️ MODIFICADO: Ahora maneja las respuestas de error del backend por duplicado
+    // Despacha la solicitud de insercion manejando codigos de respuesta Http e hilos asincronos
     fun addUser(
         name: String,
         cif: String,
         userType: UserType = UserType.ESTUDIANTE,
-        onSuccess: () -> Unit // Agregamos un callback para avisar a la pantalla que cierre si todo sale bien
+        onSuccess: () -> Unit
     ) {
-        // Limpiamos errores anteriores antes de intentar registrar
+        // Limpieza de estados de error previos al inicio de la transaccion
         registrationError = null
 
         val newUser = User(
@@ -93,15 +94,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
-                // Llamamos al repositorio pasándole el usuario
                 val response = userRepository.addUser(newUser)
 
                 if (response.isSuccessful) {
-                    // ✅ Éxito total en el servidor
+                    // Confirmacion exitosa por parte del servidor central
                     refreshUsers()
-                    onSuccess() // Redirige al Login o cierra el formulario
+                    onSuccess()
                 } else {
-                    // ❌ El Backend nos regresó un error 400 (Duplicado)
+                    // Manejo alternativo ante respuestas del tipo 400 Bad Request o duplicados
                     val errorMsg = response.errorBody()?.string() ?: "Error al registrar usuario"
                     registrationError = errorMsg
                 }
@@ -112,6 +112,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Elimina de forma logica o fisica el registro correspondiente a un identificador unico
     fun deleteUser(userId: Int) {
         viewModelScope.launch {
             try {
@@ -123,6 +124,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Invierte el estado de bloqueo de un usuario para restringir o permitir su acceso
     fun toggleBlockUser(userId: Int) {
         viewModelScope.launch {
             try {
@@ -150,15 +152,17 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         return _users.count { it.userType == userType }
     }
 
+    // Filtra concurrentemente la coleccion en base a la entrada de texto del administrador
     fun searchUsers(query: String): List<User> {
         if (query.isEmpty()) return _users
 
-        return _users.filter {
-            it.name.contains(query, ignoreCase = true) ||
-                    it.cif.contains(query, ignoreCase = true)
+        return _users.filter { user ->
+            user.name.contains(query, ignoreCase = true) ||
+                    user.cif.contains(query, ignoreCase = true)
         }
     }
 
+    // Genera una cadena formateada bajo la representacion estandar de fechas ISO-8601
     private fun getCurrentDate(): String {
         val calendar = java.util.Calendar.getInstance()
         val year = calendar.get(java.util.Calendar.YEAR)

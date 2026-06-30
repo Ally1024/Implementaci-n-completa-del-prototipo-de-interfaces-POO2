@@ -15,40 +15,40 @@ import com.example.avancesproyecto.data.local.entity.SuggestionEntity
 
 // Defino la configuración de mi base de datos local SQLite usando Room
 @Database(
-    // Registro todas las tablas (entidades) incluyendo la nueva de asistencia
+    // Registro todas las tablas (entidades) del sistema incluyendo la de asistencia
     entities = [
         EventEntity::class,
         UserEntity::class,
         SuggestionEntity::class,
-        AsistenciaEntity::class // 👈 Agregada correctamente aquí
+        AsistenciaEntity::class // Tabla de asistencia agregada correctamente aquí
     ],
-    version = 4, // 👈 Incrementamos de 3 a 4 porque agregamos una nueva tabla
-    exportSchema = false // No exporto el esquema a un archivo JSON para mantener el proyecto más ligero
+    version = 4, // Incrementamos de 3 a 4 porque se agrego la nueva estructura de asistencia
+    exportSchema = false // No exporto el esquema a un archivo JSON para mantener el proyecto mas ligero
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    // Expongo las funciones abstractas para acceder a los DAOs (los métodos que hacen las consultas)
+    // Expongo las funciones abstractas para acceder a los DAOs (los metodos que ejecutan las consultas)
     abstract fun eventDao(): EventDao
     abstract fun userDao(): UserDao
     abstract fun suggestionDao(): SuggestionDao
-    abstract fun asistenciaDao(): AsistenciaDao // 👈 Agregado el acceso al DAO de asistencia
+    abstract fun asistenciaDao(): AsistenciaDao // Acceso al DAO de asistencia registrado para el control global
 
     companion object {
-        // @Volatile asegura que el valor de INSTANCE sea siempre visible y actualizado para todos los hilos del cel
+        // @Volatile asegura que el valor de INSTANCE sea siempre visible y actualizado para todos los hilos del celular
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        // Aplico el patrón Singleton para garantizar que solo exista una sola instancia de la base de datos local abierta
+        // Aplico el patron Singleton para garantizar que exista una sola instancia de la base de datos abierta en la app
         fun getDatabase(context: Context): AppDatabase {
-            // Si ya existe la base de datos la devuelvo; si no, la creo de manera segura usando synchronized
+            // Si ya existe la base de datos la devuelvo; si no, la creo de manera segura usando un bloque synchronized
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "eventos_db_local" // El nombre físico del archivo SQLite en el almacenamiento interno
+                    "eventos_db_local" // El nombre fisico del archivo SQLite en el almacenamiento interno
                 )
-                    // Si cambio la versión de la base de datos, borra las tablas viejas y crea la nueva estructura
-                    // (Evita que la app me tire un crash por desajustes de columnas)
+                    // Si cambio la version de la base de datos, destruye las tablas viejas y crea la nueva estructura.
+                    // Esto evita que la app lance un crash por desajuste de columnas durante el desarrollo.
                     .fallbackToDestructiveMigration()
                     .build()
 

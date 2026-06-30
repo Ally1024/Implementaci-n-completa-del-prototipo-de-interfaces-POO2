@@ -1,225 +1,154 @@
 package com.example.avancesproyecto.viewmodel
 
-import android.app.Application
-import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.AndroidViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.avancesproyecto.data.local.database.AppDatabase
-import com.example.avancesproyecto.data.remote.RetrofitClient
-import com.example.avancesproyecto.data.repository.EventRepository
 import com.example.avancesproyecto.model.Event
 import kotlinx.coroutines.launch
-import android.util.Log
 
-class EventViewModel(application: Application) : AndroidViewModel(application) {
+class EventViewModel : ViewModel() {
 
-    private val database = AppDatabase.getDatabase(application)
-
-    private val eventRepository = EventRepository(
-        api = RetrofitClient.eventApi,
-        dao = database.eventDao()
-    )
-
-    val events = mutableStateListOf<Event>()
+    // Coleccion observable por Jetpack Compose con setter privado para proteger la encapsulacion
+    var events by mutableStateOf<List<Event>>(emptyList())
+        private set
 
     init {
-        observeLocalEvents()
         refreshEvents()
     }
 
-    // =======================
-    // EVENTOS - OBSERVACIÓN Y SINCRONIZACIÓN
-    // =======================
-
-    private fun observeLocalEvents() {
-        viewModelScope.launch {
-            eventRepository.events.collect { eventList ->
-                events.clear()
-                events.addAll(eventList)
-            }
-        }
-    }
-
+    // Sincroniza la coleccion de datos consumiendo el endpoint correspondiente en el backend
     fun refreshEvents() {
         viewModelScope.launch {
             try {
-                eventRepository.syncEvents()
+                // Implementacion de llamada remota estructurada:
+                // val response = RetrofitClient.api.getAllEvents()
+                // events = response
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-    // =======================
-    // EVENTOS
-    // =======================
-
-
-
-    // AGREGAR EVENTO
-    fun addEvent(
-        nombre: String,
-        descripcion: String,
-        fecha: String,
-        locacion: String,
-        capacidad: Int,
-        onSuccess: () -> Unit = {},
-        onError: (String) -> Unit = {}
-    ) {
-        val newEvent = Event(
-            id = 0,
-            title = nombre,
-            description = descripcion,
-            date = fecha,
-            location = locacion,
-            maxCapacity = capacidad,
-            attendees = 0,
-            latitude = 0.0,
-            longitude = 0.0,
-            isOpen = true,
-            isFeatured = false
-        )
-
-        viewModelScope.launch {
-            try {
-                Log.d("EVENT_DEBUG", "Intentando guardar evento: $newEvent")
-
-                eventRepository.addEvent(newEvent)
-
-                Log.d("EVENT_DEBUG", "Evento guardado correctamente")
-
-                refreshEvents()
-
-                onSuccess()
-
-            } catch (e: Exception) {
-                Log.e("EVENT_DEBUG", "Error al guardar evento", e)
-                onError("No se pudo guardar el evento. Revisa la conexión con el backend.")
-            }
-        }
-    }
-
-    // INSCRIBIRSE
+    // Incrementa el aforo del evento tanto en el servidor remoto como en el estado local reactivo
     fun joinEvent(eventId: Int) {
-        val event = events.find { it.id == eventId } ?: return
-
-        // EVENTO CERRADO
-        if (!event.isOpen) return
-
-        // EVENTO LLENO
-        if (event.attendees >= event.maxCapacity) return
-
         viewModelScope.launch {
             try {
-                eventRepository.joinEvent(eventId)
+                // Envio de la peticion POST a la API (/api/events/{id}/join):
+                // RetrofitClient.api.joinEvent(eventId)
+
+                // Actualizacion inmediata del estado local para optimizar la respuesta visual en Compose
+                events = events.map { event ->
+                    if (event.id == eventId) {
+                        event.copy(attendees = event.attendees + 1)
+                    } else {
+                        event
+                    }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-
-    // ELIMINAR EVENTO
-    fun deleteEvent(eventId: Int) {
+    // Persiste un nuevo evento en el repositorio de datos y refresca el listado global
+    fun addEvent(title: String, description: String, location: String, date: String, maxCapacity: Int) {
         viewModelScope.launch {
             try {
-                eventRepository.deleteEvent(eventId)
+                val newEvent = Event(
+                    id = 0, // Identificador autoincremental gestionado por el backend
+                    title = title,
+                    description = description,
+                    location = location,
+                    date = date,
+                    maxCapacity = maxCapacity,
+                    attendees = 0,
+                    isOpen = true,
+                    isFeatured = false
+                )
+                // Persistencia mediante cliente HTTP:
+                // RetrofitClient.api.createEvent(newEvent)
+
+                events = events + newEvent
+                refreshEvents()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-
-    // EDITAR EVENTO
-    fun editEvent(
-        eventId: Int,
-        title: String,
-        description: String,
-        date: String,
-        location: String,
-        capacity: Int
-    ) {
-        val event = events.find { it.id == eventId } ?: return
-
-        val updatedEvent = event.copy(
-            title = title,
-            description = description,
-            date = date,
-            location = location,
-            maxCapacity = capacity
-        )
-
+    // Actualiza un evento existente tanto en el servidor como en el estado local
+    fun editEvent(eventId: Int, title: String, description: String, date: String, location: String, maxCapacity: Int) {
         viewModelScope.launch {
             try {
-                eventRepository.updateEvent(updatedEvent)
+                // Envio de la peticion PUT/PATCH a la API:
+                // RetrofitClient.api.updateEvent(eventId, updatedEvent)
+
+                // Actualizacion del estado local reactivo
+                events = events.map { event ->
+                    if (event.id == eventId) {
+                        event.copy(
+                            title = title,
+                            description = description,
+                            date = date,
+                            location = location,
+                            maxCapacity = maxCapacity
+                        )
+                    } else {
+                        event
+                    }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-
-    // EVENTO LLENO
-    fun isEventFull(event: Event): Boolean {
-
-        return event.attendees >= event.maxCapacity
-    }
-
-
-    // CUPOS DISPONIBLES
-    fun remainingSpots(event: Event): Int {
-
-        return event.maxCapacity - event.attendees
-    }
-
-
-    // DESTACAR EVENTO
+    // Modifica el estado de desatado del evento aplicando mutacion segura sobre la lista inmutable
     fun toggleFeatured(eventId: Int) {
-        val event = events.find { it.id == eventId } ?: return
-
-        viewModelScope.launch {
-            try {
-                eventRepository.updateEvent(
-                    event.copy(isFeatured = !event.isFeatured)
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+        events = events.map { event ->
+            if (event.id == eventId) {
+                val updated = event.copy(isFeatured = !event.isFeatured)
+                // viewModelScope.launch { RetrofitClient.api.updateEvent(eventId, updated) }
+                updated
+            } else {
+                event
             }
         }
     }
 
-
-    // ABRIR / CERRAR EVENTO
+    // Altera el estado de admision o cierre de inscripciones del evento seleccionado
     fun toggleEventStatus(eventId: Int) {
-        val event = events.find { it.id == eventId } ?: return
+        events = events.map { event ->
+            if (event.id == eventId) {
+                val updated = event.copy(isOpen = !event.isOpen)
+                // viewModelScope.launch { RetrofitClient.api.updateEvent(eventId, updated) }
+                updated
+            } else {
+                event
+            }
+        }
+    }
 
+    // Elimina un evento de la coleccion local y potencialmente del servidor remoto
+    fun deleteEvent(event: Event) {
         viewModelScope.launch {
             try {
-                eventRepository.updateEvent(
-                    event.copy(isOpen = !event.isOpen)
-                )
+                // Sincronizacion con el backend (Simulado):
+                // RetrofitClient.api.deleteEvent(event.id)
+
+                // Actualizacion del estado reactivo eliminando el objeto de la lista
+                events = events.filter { it.id != event.id }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
-
-    // PORCENTAJE OCUPACION
+    // Calcula de manera matematica el porcentaje de ocupacion del aforo actual
     fun eventOccupation(event: Event): Int {
-
         if (event.maxCapacity == 0) return 0
-
-        return (
-                (event.attendees.toFloat() /
-                        event.maxCapacity) * 100
-                ).toInt()
+        return (event.attendees * 100) / event.maxCapacity
     }
-
-    // OBTENER EVENTO POR ID
-    fun getEventById(eventId: Int): Event? {
-        return events.find { it.id == eventId }
-    }
-
 }

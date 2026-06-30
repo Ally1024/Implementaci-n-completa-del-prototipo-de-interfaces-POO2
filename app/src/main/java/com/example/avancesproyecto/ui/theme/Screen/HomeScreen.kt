@@ -25,25 +25,26 @@ fun HomeScreen(
     viewModel: EventViewModel
 ) {
 
-    Scaffold(
+    // Lista de eventos obtenida del ViewModel para asegurar la recomposición reactiva
+    val events = viewModel.events
 
+    Scaffold(
         floatingActionButton = {
+            // Boton flotante para que los estudiantes propongan nuevos eventos
             FloatingActionButton(
-                onClick = {
-                    navController.navigate(Routes.SUGGEST_EVENT)
-                },
+                onClick = { navController.navigate(Routes.SUGGEST_EVENT) },
                 containerColor = VerdeOscuro
             ) {
                 Text("+", fontSize = 30.sp, fontWeight = FontWeight.Bold)
             }
         },
-
         topBar = {
             TopAppBar(
                 title = { Text("Green Events UAM") },
                 actions = {
                     IconButton(
                         onClick = {
+                            // Cierre de sesion seguro limpiando el historial de navegacion inmediato
                             navController.navigate(Routes.LOGIN) {
                                 popUpTo(Routes.HOME) { inclusive = true }
                             }
@@ -62,18 +63,18 @@ fun HomeScreen(
                 )
             )
         }
-
     ) { padding ->
 
+        // Renderizado eficiente del feed de eventos disponibles
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
 
-            items(viewModel.events) { event ->
+            items(events, key = { it.id }) { event ->
 
                 val isFull = event.attendees >= event.maxCapacity
 
@@ -81,6 +82,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
+                            // Transicion hacia la pantalla de detalles del evento seleccionado
                             navController.navigate("${Routes.DETAIL}/${event.id}")
                         },
                     elevation = CardDefaults.cardElevation(4.dp)
@@ -94,43 +96,43 @@ fun HomeScreen(
                             color = VerdeOscuro
                         )
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
-                        Text(text = event.description)
+                        Text(event.description)
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(" ${event.date}")
-                            Text(" ${event.location}")
+                            Text("Fecha: ${event.date}")
+                            Text("Lugar: ${event.location}")
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = " ${event.attendees}/${event.maxCapacity}",
+                            text = "Asistentes: ${event.attendees} / ${event.maxCapacity}",
                             fontWeight = FontWeight.Bold,
                             color = VerdeOscuro
                         )
 
                         Text(
-                            text = if (isFull)
-                                " Evento lleno"
-                            else
-                                " Cupos disponibles",
-                            fontSize = 12.sp
+                            text = if (isFull) "Evento lleno" else "Cupos disponibles",
+                            fontSize = 12.sp,
+                            color = if (isFull) MaterialTheme.colorScheme.error else VerdeOscuro
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
 
+                        // ==========================================
+                        // BOTON: REDIRECCION A FORMULARIO DE INSCRIPCION
+                        // ==========================================
                         Button(
                             onClick = {
-                                if (!isFull) {
-                                    viewModel.joinEvent(event.id)
-                                }
+                                // Redirecciona de forma segura a la pantalla de inscripcion parametrizada
+                                navController.navigate("${Routes.INSCRIPCION}/${event.id}")
                             },
                             enabled = !isFull,
                             modifier = Modifier.align(Alignment.End),

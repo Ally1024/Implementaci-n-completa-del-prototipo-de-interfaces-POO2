@@ -28,6 +28,7 @@ fun UsersManagementScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
 
+    // Procesamiento de busqueda reactiva mediante filtrado local en ViewModel
     val filteredUsers = viewModel.searchUsers(searchQuery.text)
     val totalUsers = viewModel.users.size
     val activeUsers = viewModel.countActiveUsers()
@@ -58,7 +59,9 @@ fun UsersManagementScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // TARJETAS DE ESTADÍSTICAS
+            // ==========================================
+            // BLOQUE: TARJETAS DE ESTADISTICAS LOCALES
+            // ==========================================
             item {
                 Row(
                     modifier = Modifier
@@ -109,7 +112,9 @@ fun UsersManagementScreen(
                 }
             }
 
-            // BUSCADOR
+            // ==========================================
+            // CAMPO DE BUSQUEDA / FILTRADO DINAMICO
+            // ==========================================
             item {
                 OutlinedTextField(
                     value = searchQuery,
@@ -123,8 +128,10 @@ fun UsersManagementScreen(
                 )
             }
 
-            // LISTA DE USUARIOS
-            items(filteredUsers) { user ->
+            // ==========================================
+            // COLECCION: FEED DE USUARIOS DETECTADOS
+            // ==========================================
+            items(filteredUsers, key = { it.id }) { user ->
                 UserCard(
                     user = user,
                     onDeleteClick = {
@@ -137,7 +144,7 @@ fun UsersManagementScreen(
                 )
             }
 
-            // MENSAJE SI NO HAY RESULTADOS
+            // Manejo de estado vacio para la consulta de usuarios
             if (filteredUsers.isEmpty()) {
                 item {
                     Box(
@@ -147,7 +154,7 @@ fun UsersManagementScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "No se encontraron usuarios",
+                            text = "No se encontraron usuarios",
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.outline
                         )
@@ -157,7 +164,9 @@ fun UsersManagementScreen(
         }
     }
 
-    // DIÁLOGO DE CONFIRMACIÓN DE ELIMINACIÓN
+    // ==========================================
+    // MODAL: CONFIRMACION DE BORRADO DE REGISTRO
+    // ==========================================
     if (showDeleteDialog && selectedUser != null) {
         AlertDialog(
             onDismissRequest = {
@@ -203,8 +212,7 @@ fun UserCard(
     onBlockClick: (Int) -> Unit
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -213,7 +221,6 @@ fun UserCard(
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // INFORMACIÓN DEL USUARIO
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -232,10 +239,8 @@ fun UserCard(
                     )
                 }
 
-                // INDICADOR DE TIPO
                 Surface(
-                    modifier = Modifier
-                        .padding(8.dp),
+                    modifier = Modifier.padding(8.dp),
                     color = when (user.userType) {
                         UserType.ADMIN -> MaterialTheme.colorScheme.primary
                         UserType.ESTUDIANTE -> MaterialTheme.colorScheme.secondary
@@ -251,7 +256,6 @@ fun UserCard(
                 }
             }
 
-            // ESTADO DEL USUARIO
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -265,12 +269,12 @@ fun UserCard(
 
                 Surface(
                     modifier = Modifier.padding(4.dp),
-                    color = if (user.isBlocked) MaterialTheme.colorScheme.error
-                            else MaterialTheme.colorScheme.tertiary,
+                    color = if (user.isBlocked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
                     shape = MaterialTheme.shapes.small
                 ) {
+                    // ARREGLADO: Limpieza de glifos/espacios agregados por error en texto de estado
                     Text(
-                        text = if (user.isBlocked) " Bloqueado" else " Activo",
+                        text = if (user.isBlocked) "Bloqueado" else "Activo",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -278,21 +282,17 @@ fun UserCard(
                 }
             }
 
-            // BOTONES DE ACCIÓN
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // BOTÓN BLOQUEAR/DESBLOQUEAR
                 Button(
                     onClick = { onBlockClick(user.id) },
                     modifier = Modifier
                         .weight(1f)
                         .height(36.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (user.isBlocked) MaterialTheme.colorScheme.tertiary
-                                       else MaterialTheme.colorScheme.error
+                        containerColor = if (user.isBlocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
                     )
                 ) {
                     Icon(
@@ -307,7 +307,6 @@ fun UserCard(
                     )
                 }
 
-                // BOTÓN ELIMINAR
                 Button(
                     onClick = { onDeleteClick(user) },
                     modifier = Modifier
@@ -371,11 +370,3 @@ fun StatCard(
         }
     }
 }
-
-
-
-
-
-
-
-
